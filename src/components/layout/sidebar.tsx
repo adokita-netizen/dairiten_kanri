@@ -16,6 +16,7 @@ import {
   TrendingUp,
   User,
   X,
+  Banknote,
 } from "lucide-react";
 
 const operatorNav = [
@@ -25,6 +26,7 @@ const operatorNav = [
   { href: "/operator/sales", label: "売上管理", icon: Receipt },
   { href: "/operator/calculations", label: "報酬計算", icon: Calculator },
   { href: "/operator/payouts", label: "支払管理", icon: Wallet },
+  { href: "/operator/deposits", label: "デポジット管理", icon: Banknote },
   { href: "/operator/audit-log", label: "監査ログ", icon: ClipboardList },
   { href: "/operator/settings", label: "設定", icon: Settings },
 ];

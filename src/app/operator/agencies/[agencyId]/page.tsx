@@ -175,6 +175,39 @@ export default async function AgencyDetailPage({
 
           <Card>
             <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold">デポジット</CardTitle>
+                <Link href={`/operator/deposits/${agencyId}`}>
+                  <Button variant="outline" size="sm">管理</Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+              <div>
+                <p className="text-sm text-muted-foreground">デポジット金額</p>
+                <p className="text-lg font-bold">{formatJPY(Number(agency.depositAmount))}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">入金状況</p>
+                {agency.depositRefunded ? (
+                  <Badge variant="secondary">返金済</Badge>
+                ) : agency.depositPaid ? (
+                  <Badge variant="success">入金済</Badge>
+                ) : (
+                  <Badge variant="warning">未入金</Badge>
+                )}
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">返金可能設定</p>
+                <p className={`font-medium ${agency.depositRefundable ? "text-emerald-600" : "text-muted-foreground"}`}>
+                  {agency.depositRefundable ? "返金可能" : "不可"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-base font-semibold">ユーザー一覧</CardTitle>
             </CardHeader>
             <CardContent>

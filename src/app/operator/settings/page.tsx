@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DEFAULT_PAYOUT_THRESHOLD, DEFAULT_HOLD_PERIOD_DAYS, DEFAULT_TAX_RATE } from "@/lib/utils/constants";
+import { DEFAULT_PAYOUT_THRESHOLD, DEFAULT_HOLD_PERIOD_DAYS, DEFAULT_TAX_RATE, DEPOSIT_AMOUNT, DEPOSIT_AMOUNT_INC_TAX } from "@/lib/utils/constants";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function SettingsPage() {
   return (
@@ -29,6 +31,33 @@ export default function SettingsPage() {
               <p className="text-lg font-semibold">{DEFAULT_TAX_RATE}%</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>デポジット設定</CardTitle>
+            <Link href="/operator/deposits">
+              <Button variant="outline" size="sm">デポジット管理</Button>
+            </Link>
+          </div>
+          <CardDescription>新規代理店登録時のデフォルト値</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+            <div>
+              <p className="text-sm text-muted-foreground">デポジット金額（税抜）</p>
+              <p className="text-lg font-semibold">{DEPOSIT_AMOUNT.toLocaleString()}円</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">デポジット金額（税込）</p>
+              <p className="text-lg font-semibold">{DEPOSIT_AMOUNT_INC_TAX.toLocaleString()}円</p>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            デポジットは代理店ごとに個別設定が可能です。返金可能フラグは運営者がデポジット管理画面から設定します。
+          </p>
         </CardContent>
       </Card>
 

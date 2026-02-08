@@ -93,9 +93,11 @@ model Agency {
   payoutThreshold   Decimal      @default(10000) @db.Decimal(12, 2)
   holdPeriodDays    Int          @default(14)
 
-  depositAmount     Decimal      @default(132000) @db.Decimal(12, 2)
-  depositPaid       Boolean      @default(false)
-  depositRefunded   Boolean      @default(false)
+  depositAmount      Decimal      @default(132000) @db.Decimal(12, 2)
+  depositPaid        Boolean      @default(false)
+  depositRefunded    Boolean      @default(false)
+  depositRefundable  Boolean      @default(false)
+  depositRefundNote  String?
 
   users             User[]
   commissionRules   CommissionRule[]

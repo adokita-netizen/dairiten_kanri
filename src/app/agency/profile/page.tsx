@@ -93,6 +93,51 @@ export default async function AgencyProfilePage() {
         </CardContent>
       </Card>
 
+      {/* Deposit Status */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>デポジット</CardTitle>
+            {agency.depositRefunded ? (
+              <Badge variant="secondary">返金済</Badge>
+            ) : agency.depositPaid ? (
+              agency.depositRefundable ? (
+                <Badge variant="success">返金可能</Badge>
+              ) : (
+                <Badge variant="warning">預かり中</Badge>
+              )
+            ) : (
+              <Badge variant="warning">未入金</Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+          <div>
+            <p className="text-sm text-muted-foreground">デポジット金額</p>
+            <p className="text-lg font-bold">{formatJPY(Number(agency.depositAmount))}</p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">状態</p>
+            <p className="font-medium">
+              {agency.depositRefunded
+                ? "返金済み"
+                : agency.depositPaid
+                ? agency.depositRefundable
+                  ? "入金済み・返金可能"
+                  : "入金済み・預かり中"
+                : "未入金"}
+            </p>
+          </div>
+          {agency.depositRefundable && agency.depositPaid && !agency.depositRefunded && (
+            <div className="col-span-full">
+              <p className="text-sm text-emerald-600 bg-emerald-50 rounded-lg p-3">
+                デポジットの返金が可能です。返金をご希望の場合は運営者にお問い合わせください。
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader><CardTitle>現在の還元率</CardTitle></CardHeader>
         <CardContent>
