@@ -39,7 +39,7 @@ export default async function AgencyProfilePage() {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
+        <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           <div>
             <p className="text-sm text-muted-foreground">代理店コード</p>
             <p className="font-medium font-mono">{agency.code}</p>
@@ -69,7 +69,7 @@ export default async function AgencyProfilePage() {
 
       <Card>
         <CardHeader><CardTitle>振込先情報</CardTitle></CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
+        <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           <div>
             <p className="text-sm text-muted-foreground">銀行名</p>
             <p className="font-medium">{agency.bankName || "未登録"}</p>

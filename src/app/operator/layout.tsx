@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
+import { AppShell } from "@/components/layout/app-shell";
 
 export default async function OperatorLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -11,12 +10,8 @@ export default async function OperatorLayout({ children }: { children: React.Rea
   }
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar role="OPERATOR" />
-      <div className="flex-1 pl-64">
-        <Header userName={session.user.name} role="OPERATOR" />
-        <main className="p-8">{children}</main>
-      </div>
-    </div>
+    <AppShell role="OPERATOR" userName={session.user.name}>
+      {children}
+    </AppShell>
   );
 }

@@ -51,41 +51,64 @@ export default async function AuditLogPage({
 
       <Card>
         <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>日時</TableHead>
-                <TableHead>ユーザー</TableHead>
-                <TableHead>アクション</TableHead>
-                <TableHead>対象</TableHead>
-                <TableHead>対象ID</TableHead>
-                <TableHead>変更内容</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell className="text-sm">{formatDateTime(log.createdAt)}</TableCell>
-                  <TableCell>{log.user?.name || log.user?.email || "-"}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{ACTION_LABELS[log.action] || log.action}</Badge>
-                  </TableCell>
-                  <TableCell>{log.entityType}</TableCell>
-                  <TableCell className="font-mono text-xs">{log.entityId || "-"}</TableCell>
-                  <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
-                    {log.changes ? JSON.stringify(log.changes) : "-"}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {logs.length === 0 && (
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                    監査ログがありません。
-                  </TableCell>
+                  <TableHead>日時</TableHead>
+                  <TableHead>ユーザー</TableHead>
+                  <TableHead>アクション</TableHead>
+                  <TableHead>対象</TableHead>
+                  <TableHead>対象ID</TableHead>
+                  <TableHead>変更内容</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {logs.map((log) => (
+                  <TableRow key={log.id}>
+                    <TableCell className="text-sm">{formatDateTime(log.createdAt)}</TableCell>
+                    <TableCell>{log.user?.name || log.user?.email || "-"}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{ACTION_LABELS[log.action] || log.action}</Badge>
+                    </TableCell>
+                    <TableCell>{log.entityType}</TableCell>
+                    <TableCell className="font-mono text-xs">{log.entityId || "-"}</TableCell>
+                    <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
+                      {log.changes ? JSON.stringify(log.changes) : "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {logs.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                      監査ログがありません。
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="lg:hidden space-y-3">
+            {logs.map((log) => (
+              <div key={log.id} className="rounded-xl border bg-card p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline">{ACTION_LABELS[log.action] || log.action}</Badge>
+                  <span className="text-xs text-muted-foreground">{formatDateTime(log.createdAt)}</span>
+                </div>
+                <p className="text-sm font-medium">{log.user?.name || log.user?.email || "-"}</p>
+                <div className="text-xs text-muted-foreground">
+                  {log.entityType}{log.entityId ? ` / ${log.entityId}` : ""}
+                </div>
+              </div>
+            ))}
+            {logs.length === 0 && (
+              <div className="h-24 flex items-center justify-center text-muted-foreground">
+                監査ログがありません。
+              </div>
+            )}
+          </div>
+
           {total > pageSize && (
             <div className="mt-4 flex justify-center gap-2">
               {page > 1 && (

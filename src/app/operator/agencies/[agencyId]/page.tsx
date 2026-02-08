@@ -69,7 +69,7 @@ export default async function AgencyDetailPage({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">確定残高</CardTitle>
@@ -105,7 +105,7 @@ export default async function AgencyDetailPage({
       </div>
 
       <Tabs defaultValue="overview">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
           <TabsTrigger value="overview">概要</TabsTrigger>
           <TabsTrigger value="rules">還元率ルール</TabsTrigger>
           <TabsTrigger value="sales">売上明細</TabsTrigger>
@@ -117,7 +117,7 @@ export default async function AgencyDetailPage({
             <CardHeader>
               <CardTitle className="text-base font-semibold">基本情報</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
+            <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div>
                 <p className="text-sm text-muted-foreground">担当者名</p>
                 <p className="font-medium">{agency.contactName}</p>
@@ -149,7 +149,7 @@ export default async function AgencyDetailPage({
             <CardHeader>
               <CardTitle className="text-base font-semibold">振込先情報</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
+            <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div>
                 <p className="text-sm text-muted-foreground">銀行名</p>
                 <p className="font-medium">{agency.bankName || "未登録"}</p>
@@ -178,33 +178,53 @@ export default async function AgencyDetailPage({
               <CardTitle className="text-base font-semibold">ユーザー一覧</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>名前</TableHead>
-                    <TableHead>メールアドレス</TableHead>
-                    <TableHead>状態</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {agency.users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>{user.name || "-"}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Badge variant={user.isActive ? "success" : "secondary"}>
-                          {user.isActive ? "有効" : "無効"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {agency.users.length === 0 && (
+              {/* Desktop table */}
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">ユーザーが登録されていません</TableCell>
+                      <TableHead>名前</TableHead>
+                      <TableHead>メールアドレス</TableHead>
+                      <TableHead>状態</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {agency.users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.name || "-"}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>
+                          <Badge variant={user.isActive ? "success" : "secondary"}>
+                            {user.isActive ? "有効" : "無効"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {agency.users.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center text-muted-foreground">ユーザーが登録されていません</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              {/* Mobile card list */}
+              <div className="sm:hidden space-y-3">
+                {agency.users.map((user) => (
+                  <div key={user.id} className="rounded-lg border p-3 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{user.name || "-"}</p>
+                      <Badge variant={user.isActive ? "success" : "secondary"}>
+                        {user.isActive ? "有効" : "無効"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                ))}
+                {agency.users.length === 0 && (
+                  <p className="text-center text-muted-foreground py-4">ユーザーが登録されていません</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -212,39 +232,71 @@ export default async function AgencyDetailPage({
         <TabsContent value="rules" className="pt-4">
           <Card>
             <CardContent className="pt-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>プラン</TableHead>
-                    <TableHead>種別</TableHead>
-                    <TableHead>還元率/金額</TableHead>
-                    <TableHead>適用開始日</TableHead>
-                    <TableHead>適用終了日</TableHead>
-                    <TableHead>説明</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {agency.commissionRules.map((rule) => (
-                    <TableRow key={rule.id}>
-                      <TableCell>{rule.plan ? rule.plan.name : "全プラン（デフォルト）"}</TableCell>
-                      <TableCell>{COMMISSION_TYPE_LABELS[rule.commissionType]}</TableCell>
-                      <TableCell className="font-medium">
+              {/* Desktop table */}
+              <div className="hidden lg:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>プラン</TableHead>
+                      <TableHead>種別</TableHead>
+                      <TableHead>還元率/金額</TableHead>
+                      <TableHead>適用開始日</TableHead>
+                      <TableHead>適用終了日</TableHead>
+                      <TableHead>説明</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {agency.commissionRules.map((rule) => (
+                      <TableRow key={rule.id}>
+                        <TableCell>{rule.plan ? rule.plan.name : "全プラン（デフォルト）"}</TableCell>
+                        <TableCell>{COMMISSION_TYPE_LABELS[rule.commissionType]}</TableCell>
+                        <TableCell className="font-medium">
+                          {rule.commissionType === "PERCENTAGE"
+                            ? `${Number(rule.rate)}%`
+                            : formatJPY(Number(rule.rate))}
+                        </TableCell>
+                        <TableCell>{formatDate(rule.effectiveFrom)}</TableCell>
+                        <TableCell>{rule.effectiveTo ? formatDate(rule.effectiveTo) : "現在有効"}</TableCell>
+                        <TableCell>{rule.description || "-"}</TableCell>
+                      </TableRow>
+                    ))}
+                    {agency.commissionRules.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">還元率ルールが設定されていません</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              {/* Mobile card list */}
+              <div className="lg:hidden space-y-3">
+                {agency.commissionRules.map((rule) => (
+                  <div key={rule.id} className="rounded-lg border p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{rule.plan ? rule.plan.name : "全プラン（デフォルト）"}</p>
+                      <span className="text-sm font-medium">
                         {rule.commissionType === "PERCENTAGE"
                           ? `${Number(rule.rate)}%`
                           : formatJPY(Number(rule.rate))}
-                      </TableCell>
-                      <TableCell>{formatDate(rule.effectiveFrom)}</TableCell>
-                      <TableCell>{rule.effectiveTo ? formatDate(rule.effectiveTo) : "現在有効"}</TableCell>
-                      <TableCell>{rule.description || "-"}</TableCell>
-                    </TableRow>
-                  ))}
-                  {agency.commissionRules.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center text-muted-foreground">還元率ルールが設定されていません</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{COMMISSION_TYPE_LABELS[rule.commissionType]}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <span>{formatDate(rule.effectiveFrom)}</span>
+                      <span> ~ </span>
+                      <span>{rule.effectiveTo ? formatDate(rule.effectiveTo) : "現在有効"}</span>
+                    </div>
+                    {rule.description && (
+                      <p className="text-sm text-muted-foreground">{rule.description}</p>
+                    )}
+                  </div>
+                ))}
+                {agency.commissionRules.length === 0 && (
+                  <p className="text-center text-muted-foreground py-4">還元率ルールが設定されていません</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -252,49 +304,85 @@ export default async function AgencyDetailPage({
         <TabsContent value="sales" className="pt-4">
           <Card>
             <CardContent className="pt-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>取引日</TableHead>
-                    <TableHead>顧客</TableHead>
-                    <TableHead>プラン</TableHead>
-                    <TableHead>売上（税抜）</TableHead>
-                    <TableHead>還元率</TableHead>
-                    <TableHead>報酬額</TableHead>
-                    <TableHead>運営者取り分</TableHead>
-                    <TableHead>状態</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentSales.map((sale) => (
-                    <TableRow key={sale.id}>
-                      <TableCell>{formatDate(sale.transactionDate)}</TableCell>
-                      <TableCell>{sale.customerName || sale.customerRef || "-"}</TableCell>
-                      <TableCell>{sale.plan?.name || "-"}</TableCell>
-                      <TableCell>{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
-                      <TableCell>
-                        {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
-                      </TableCell>
-                      <TableCell className="font-medium text-green-700">
-                        {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
-                      </TableCell>
-                      <TableCell>
-                        {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.operatorAmount)) : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={sale.commissionEvent?.status === "CONFIRMED" ? "success" : "secondary"}>
-                          {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {recentSales.length === 0 && (
+              {/* Desktop table */}
+              <div className="hidden lg:block">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground">売上データがありません</TableCell>
+                      <TableHead>取引日</TableHead>
+                      <TableHead>顧客</TableHead>
+                      <TableHead>プラン</TableHead>
+                      <TableHead>売上（税抜）</TableHead>
+                      <TableHead>還元率</TableHead>
+                      <TableHead>報酬額</TableHead>
+                      <TableHead>運営者取り分</TableHead>
+                      <TableHead>状態</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {recentSales.map((sale) => (
+                      <TableRow key={sale.id}>
+                        <TableCell>{formatDate(sale.transactionDate)}</TableCell>
+                        <TableCell>{sale.customerName || sale.customerRef || "-"}</TableCell>
+                        <TableCell>{sale.plan?.name || "-"}</TableCell>
+                        <TableCell>{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
+                        <TableCell>
+                          {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
+                        </TableCell>
+                        <TableCell className="font-medium text-green-700">
+                          {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.operatorAmount)) : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={sale.commissionEvent?.status === "CONFIRMED" ? "success" : "secondary"}>
+                            {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {recentSales.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center text-muted-foreground">売上データがありません</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              {/* Mobile card list */}
+              <div className="lg:hidden space-y-3">
+                {recentSales.map((sale) => (
+                  <div key={sale.id} className="rounded-lg border p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">{formatDate(sale.transactionDate)}</p>
+                      <Badge variant={sale.commissionEvent?.status === "CONFIRMED" ? "success" : "secondary"}>
+                        {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium">{sale.customerName || sale.customerRef || "-"}</p>
+                      <p className="text-sm">{sale.plan?.name || "-"}</p>
+                    </div>
+                    <Separator />
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">売上（税抜）</p>
+                        <p className="font-medium">{formatJPY(Number(sale.saleAmountExTax))}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">報酬額</p>
+                        <p className="font-medium text-green-700">
+                          {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {recentSales.length === 0 && (
+                  <p className="text-center text-muted-foreground py-4">売上データがありません</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -302,37 +390,63 @@ export default async function AgencyDetailPage({
         <TabsContent value="payouts" className="pt-4">
           <Card>
             <CardContent className="pt-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>申請日</TableHead>
-                    <TableHead>金額</TableHead>
-                    <TableHead>状態</TableHead>
-                    <TableHead>承認日</TableHead>
-                    <TableHead>支払日</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {agency.payoutRequests.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell>{formatDate(p.requestedAt)}</TableCell>
-                      <TableCell>{formatJPY(Number(p.amount))}</TableCell>
-                      <TableCell>
-                        <Badge variant={p.status === "PAID" ? "success" : p.status === "REJECTED" ? "destructive" : "warning"}>
-                          {PAYOUT_STATUS_LABELS[p.status]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{p.approvedAt ? formatDate(p.approvedAt) : "-"}</TableCell>
-                      <TableCell>{p.paidAt ? formatDate(p.paidAt) : "-"}</TableCell>
-                    </TableRow>
-                  ))}
-                  {agency.payoutRequests.length === 0 && (
+              {/* Desktop table */}
+              <div className="hidden lg:block">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground">支払履歴がありません</TableCell>
+                      <TableHead>申請日</TableHead>
+                      <TableHead>金額</TableHead>
+                      <TableHead>状態</TableHead>
+                      <TableHead>承認日</TableHead>
+                      <TableHead>支払日</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {agency.payoutRequests.map((p) => (
+                      <TableRow key={p.id}>
+                        <TableCell>{formatDate(p.requestedAt)}</TableCell>
+                        <TableCell>{formatJPY(Number(p.amount))}</TableCell>
+                        <TableCell>
+                          <Badge variant={p.status === "PAID" ? "success" : p.status === "REJECTED" ? "destructive" : "warning"}>
+                            {PAYOUT_STATUS_LABELS[p.status]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{p.approvedAt ? formatDate(p.approvedAt) : "-"}</TableCell>
+                        <TableCell>{p.paidAt ? formatDate(p.paidAt) : "-"}</TableCell>
+                      </TableRow>
+                    ))}
+                    {agency.payoutRequests.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">支払履歴がありません</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              {/* Mobile card list */}
+              <div className="lg:hidden space-y-3">
+                {agency.payoutRequests.map((p) => (
+                  <div key={p.id} className="rounded-lg border p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">{formatDate(p.requestedAt)}</p>
+                      <Badge variant={p.status === "PAID" ? "success" : p.status === "REJECTED" ? "destructive" : "warning"}>
+                        {PAYOUT_STATUS_LABELS[p.status]}
+                      </Badge>
+                    </div>
+                    <p className="text-lg font-bold">{formatJPY(Number(p.amount))}</p>
+                    {(p.approvedAt || p.paidAt) && (
+                      <div className="flex gap-4 text-sm text-muted-foreground">
+                        {p.approvedAt && <span>承認: {formatDate(p.approvedAt)}</span>}
+                        {p.paidAt && <span>支払: {formatDate(p.paidAt)}</span>}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {agency.payoutRequests.length === 0 && (
+                  <p className="text-center text-muted-foreground py-4">支払履歴がありません</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

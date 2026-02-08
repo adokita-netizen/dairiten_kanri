@@ -39,7 +39,7 @@ export default function NewAgencyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="mx-auto w-full max-w-2xl space-y-8">
       <div>
         <h1 className="text-2xl font-bold">代理店新規登録</h1>
         <p className="mt-1 text-sm text-muted-foreground">新しい代理店を登録します</p>
@@ -72,7 +72,7 @@ export default function NewAgencyPage() {
               <Label htmlFor="contactPhone">電話番号</Label>
               <Input id="contactPhone" name="contactPhone" />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="payoutThreshold">最低支払額（円）</Label>
                 <Input id="payoutThreshold" name="payoutThreshold" type="number" defaultValue={10000} />

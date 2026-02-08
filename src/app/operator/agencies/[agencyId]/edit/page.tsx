@@ -82,7 +82,7 @@ export default function EditAgencyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="mx-auto w-full max-w-2xl space-y-8">
       <h1 className="text-2xl font-bold">{agency.name} - 編集</h1>
 
       {error && (
@@ -127,7 +127,7 @@ export default function EditAgencyPage() {
               <Label htmlFor="contactPhone">電話番号</Label>
               <Input id="contactPhone" name="contactPhone" defaultValue={agency.contactPhone || ""} />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="payoutThreshold">最低支払額（円）</Label>
                 <Input id="payoutThreshold" name="payoutThreshold" type="number" defaultValue={Number(agency.payoutThreshold)} />

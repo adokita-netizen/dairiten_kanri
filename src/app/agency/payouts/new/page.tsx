@@ -41,7 +41,7 @@ export default function NewPayoutPage() {
   if (!balance) return <div className="py-8 text-center text-muted-foreground">読み込み中...</div>;
 
   return (
-    <div className="mx-auto max-w-lg space-y-8">
+    <div className="mx-auto w-full max-w-lg space-y-8">
       <div>
         <h1 className="text-2xl font-bold">引き出し申請</h1>
         <p className="text-sm text-muted-foreground mt-1">確定残高から引き出し申請を行います</p>

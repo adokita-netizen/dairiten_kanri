@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
+import { AppShell } from "@/components/layout/app-shell";
 
 export default async function AgencyLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -17,12 +16,8 @@ export default async function AgencyLayout({ children }: { children: React.React
   });
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar role="AGENCY" />
-      <div className="flex-1 pl-64">
-        <Header userName={session.user.name} role="AGENCY" agencyName={agency?.name} />
-        <main className="p-8">{children}</main>
-      </div>
-    </div>
+    <AppShell role="AGENCY" userName={session.user.name} agencyName={agency?.name}>
+      {children}
+    </AppShell>
   );
 }

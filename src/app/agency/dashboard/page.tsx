@@ -95,17 +95,17 @@ export default async function AgencyDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="pt-5">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
-                  <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                  <p className="text-xl lg:text-2xl font-bold tracking-tight">{stat.value}</p>
                   {stat.sub && <p className="text-xs text-muted-foreground">{stat.sub}</p>}
                 </div>
-                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.color}`}>
+                <div className={`flex h-8 w-8 lg:h-10 lg:w-10 items-center justify-center rounded-xl ${stat.color}`}>
                   <stat.icon className="h-5 w-5" />
                 </div>
               </div>
@@ -117,7 +117,7 @@ export default async function AgencyDashboard() {
       {/* Payout Status Card */}
       <Card className={canRequestPayout ? "border-emerald-200 bg-emerald-50/30" : ""}>
         <CardContent className="pt-5">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {canRequestPayout ? (
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
@@ -147,7 +147,7 @@ export default async function AgencyDashboard() {
               </div>
             </div>
             <Link href="/agency/payouts/new">
-              <Button disabled={!canRequestPayout} className="gap-1.5">
+              <Button disabled={!canRequestPayout} className="w-full sm:w-auto gap-1.5">
                 引き出し申請 <ArrowUpRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -183,47 +183,83 @@ export default async function AgencyDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>取引日</TableHead>
-                <TableHead>顧客</TableHead>
-                <TableHead>プラン</TableHead>
-                <TableHead>売上（税抜）</TableHead>
-                <TableHead>還元率</TableHead>
-                <TableHead>報酬額</TableHead>
-                <TableHead>状態</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentSales.map((sale) => (
-                <TableRow key={sale.id}>
-                  <TableCell className="text-muted-foreground">{formatDate(sale.transactionDate)}</TableCell>
-                  <TableCell className="font-medium">{sale.customerName || sale.customerRef || "-"}</TableCell>
-                  <TableCell>{sale.plan?.name || "-"}</TableCell>
-                  <TableCell className="font-semibold">{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
-                  <TableCell>
-                    {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
-                  </TableCell>
-                  <TableCell className="font-semibold text-emerald-600">
-                    {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={sale.commissionEvent?.status === "CONFIRMED" ? "success" : "secondary"}>
-                      {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {recentSales.length === 0 && (
+          {/* Desktop Table */}
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    売上データがありません
-                  </TableCell>
+                  <TableHead>取引日</TableHead>
+                  <TableHead>顧客</TableHead>
+                  <TableHead>プラン</TableHead>
+                  <TableHead>売上（税抜）</TableHead>
+                  <TableHead>還元率</TableHead>
+                  <TableHead>報酬額</TableHead>
+                  <TableHead>状態</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {recentSales.map((sale) => (
+                  <TableRow key={sale.id}>
+                    <TableCell className="text-muted-foreground">{formatDate(sale.transactionDate)}</TableCell>
+                    <TableCell className="font-medium">{sale.customerName || sale.customerRef || "-"}</TableCell>
+                    <TableCell>{sale.plan?.name || "-"}</TableCell>
+                    <TableCell className="font-semibold">{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
+                    <TableCell>
+                      {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
+                    </TableCell>
+                    <TableCell className="font-semibold text-emerald-600">
+                      {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={sale.commissionEvent?.status === "CONFIRMED" ? "success" : "secondary"}>
+                        {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {recentSales.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                      売上データがありません
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card List */}
+          <div className="lg:hidden space-y-3">
+            {recentSales.map((sale) => (
+              <div key={sale.id} className="rounded-lg border p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">{formatDate(sale.transactionDate)}</span>
+                  <Badge variant={sale.commissionEvent?.status === "CONFIRMED" ? "success" : "secondary"}>
+                    {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
+                  </Badge>
+                </div>
+                <p className="font-medium">{sale.customerName || sale.customerRef || "-"}</p>
+                <p className="text-sm text-muted-foreground">{sale.plan?.name || "-"}</p>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <div>
+                    <p className="text-xs text-muted-foreground">売上（税抜）</p>
+                    <p className="font-semibold">{formatJPY(Number(sale.saleAmountExTax))}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">報酬額</p>
+                    <p className="font-semibold text-emerald-600">
+                      {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {recentSales.length === 0 && (
+              <div className="py-12 text-center text-muted-foreground">
+                売上データがありません
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

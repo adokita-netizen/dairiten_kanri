@@ -55,59 +55,94 @@ export default async function SalesPage({
 
       <Card>
         <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>取引日</TableHead>
-                <TableHead>代理店</TableHead>
-                <TableHead>顧客</TableHead>
-                <TableHead>プラン</TableHead>
-                <TableHead>売上（税抜）</TableHead>
-                <TableHead>決済状態</TableHead>
-                <TableHead>還元率</TableHead>
-                <TableHead>報酬額</TableHead>
-                <TableHead>報酬状態</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sales.map((sale) => (
-                <TableRow key={sale.id}>
-                  <TableCell>{formatDate(sale.transactionDate)}</TableCell>
-                  <TableCell>{sale.agency.code}</TableCell>
-                  <TableCell>{sale.customerName || sale.customerRef || "-"}</TableCell>
-                  <TableCell>{sale.plan?.name || "-"}</TableCell>
-                  <TableCell>{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
-                  <TableCell>
-                    <Badge variant={sale.paymentStatus === "SUCCESS" ? "success" : "destructive"}>
-                      {SALES_STATUS_LABELS[sale.paymentStatus]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
-                  </TableCell>
-                  <TableCell className="font-semibold">
-                    {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {sale.commissionEvent ? (
-                      <Badge variant={sale.commissionEvent.status === "CONFIRMED" ? "success" : "secondary"}>
-                        {COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status]}
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline">未計算</Badge>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {sales.length === 0 && (
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                    売上データがありません。
-                  </TableCell>
+                  <TableHead>取引日</TableHead>
+                  <TableHead>代理店</TableHead>
+                  <TableHead>顧客</TableHead>
+                  <TableHead>プラン</TableHead>
+                  <TableHead>売上（税抜）</TableHead>
+                  <TableHead>決済状態</TableHead>
+                  <TableHead>還元率</TableHead>
+                  <TableHead>報酬額</TableHead>
+                  <TableHead>報酬状態</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {sales.map((sale) => (
+                  <TableRow key={sale.id}>
+                    <TableCell>{formatDate(sale.transactionDate)}</TableCell>
+                    <TableCell>{sale.agency.code}</TableCell>
+                    <TableCell>{sale.customerName || sale.customerRef || "-"}</TableCell>
+                    <TableCell>{sale.plan?.name || "-"}</TableCell>
+                    <TableCell>{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
+                    <TableCell>
+                      <Badge variant={sale.paymentStatus === "SUCCESS" ? "success" : "destructive"}>
+                        {SALES_STATUS_LABELS[sale.paymentStatus]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
+                    </TableCell>
+                    <TableCell className="font-semibold">
+                      {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {sale.commissionEvent ? (
+                        <Badge variant={sale.commissionEvent.status === "CONFIRMED" ? "success" : "secondary"}>
+                          {COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status]}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">未計算</Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {sales.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                      売上データがありません。
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="lg:hidden space-y-3">
+            {sales.map((sale) => (
+              <div key={sale.id} className="rounded-xl border bg-card p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{formatDate(sale.transactionDate)}</span>
+                  <Badge variant={sale.paymentStatus === "SUCCESS" ? "success" : "destructive"}>
+                    {SALES_STATUS_LABELS[sale.paymentStatus]}
+                  </Badge>
+                </div>
+                <div className="font-medium">{sale.customerName || sale.customerRef || "-"}</div>
+                <div className="text-xs text-muted-foreground">{sale.agency.code} / {sale.plan?.name || "-"}</div>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <div>
+                    <p className="text-[11px] text-muted-foreground">売上（税抜）</p>
+                    <p className="font-semibold">{formatJPY(Number(sale.saleAmountExTax))}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] text-muted-foreground">報酬額</p>
+                    <p className="font-semibold text-emerald-600">
+                      {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {sales.length === 0 && (
+              <div className="h-24 flex items-center justify-center text-muted-foreground">
+                売上データがありません。
+              </div>
+            )}
+          </div>
+
           {total > pageSize && (
             <div className="mt-4 flex justify-center gap-2">
               {page > 1 && (

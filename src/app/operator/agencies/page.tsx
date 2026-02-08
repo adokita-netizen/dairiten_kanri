@@ -67,49 +67,89 @@ export default async function AgenciesPage({
 
       <Card>
         <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>コード</TableHead>
-                <TableHead>代理店名</TableHead>
-                <TableHead>担当者</TableHead>
-                <TableHead>ステータス</TableHead>
-                <TableHead>確定残高</TableHead>
-                <TableHead>売上件数</TableHead>
-                <TableHead>登録日</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {agencies.map((agency) => (
-                <TableRow key={agency.id}>
-                  <TableCell className="font-mono text-sm">{agency.code}</TableCell>
-                  <TableCell className="font-medium">{agency.name}</TableCell>
-                  <TableCell>{agency.contactName}</TableCell>
-                  <TableCell>
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>コード</TableHead>
+                  <TableHead>代理店名</TableHead>
+                  <TableHead>担当者</TableHead>
+                  <TableHead>ステータス</TableHead>
+                  <TableHead>確定残高</TableHead>
+                  <TableHead>売上件数</TableHead>
+                  <TableHead>登録日</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {agencies.map((agency) => (
+                  <TableRow key={agency.id}>
+                    <TableCell className="font-mono text-sm">{agency.code}</TableCell>
+                    <TableCell className="font-medium">{agency.name}</TableCell>
+                    <TableCell>{agency.contactName}</TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(agency.status)}>
+                        {AGENCY_STATUS_LABELS[agency.status]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-semibold">{formatJPY(Number(agency.balance?.confirmedBalance || 0))}</TableCell>
+                    <TableCell>{agency._count.salesRecords}</TableCell>
+                    <TableCell>{formatDate(agency.createdAt)}</TableCell>
+                    <TableCell>
+                      <Link href={`/operator/agencies/${agency.id}`}>
+                        <Button variant="ghost" size="sm">詳細</Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {agencies.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                      代理店が登録されていません。
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="lg:hidden space-y-3">
+            {agencies.map((agency) => (
+              <Link key={agency.id} href={`/operator/agencies/${agency.id}`} className="block">
+                <div className="rounded-xl border bg-card p-4 space-y-2 active:bg-accent/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">{agency.name}</p>
+                      <p className="text-xs text-muted-foreground font-mono">{agency.code}</p>
+                    </div>
                     <Badge variant={getStatusVariant(agency.status)}>
                       {AGENCY_STATUS_LABELS[agency.status]}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="font-semibold">{formatJPY(Number(agency.balance?.confirmedBalance || 0))}</TableCell>
-                  <TableCell>{agency._count.salesRecords}</TableCell>
-                  <TableCell>{formatDate(agency.createdAt)}</TableCell>
-                  <TableCell>
-                    <Link href={`/operator/agencies/${agency.id}`}>
-                      <Button variant="ghost" size="sm">詳細</Button>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {agencies.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-                    代理店が登録されていません。
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">担当者</p>
+                      <p>{agency.contactName}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">確定残高</p>
+                      <p className="font-semibold">{formatJPY(Number(agency.balance?.confirmedBalance || 0))}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">売上件数</p>
+                      <p>{agency._count.salesRecords}件</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">登録日</p>
+                      <p>{formatDate(agency.createdAt)}</p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            {agencies.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">代理店が登録されていません。</div>
+            )}
+          </div>
           {total > pageSize && (
             <div className="mt-4 flex justify-center gap-2">
               {page > 1 && (

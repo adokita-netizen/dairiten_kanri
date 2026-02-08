@@ -15,7 +15,7 @@ export default function SettingsPage() {
           <CardDescription>全体のデフォルト値を確認できます。</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
             <div>
               <p className="text-sm text-muted-foreground">デフォルト最低支払額</p>
               <p className="text-lg font-semibold">{DEFAULT_PAYOUT_THRESHOLD.toLocaleString()}円</p>

@@ -73,7 +73,7 @@ export default function PayoutDetailPage() {
   const status = payout.status as string;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="mx-auto w-full max-w-2xl space-y-8">
       <div>
         <h1 className="text-2xl font-bold">支払申請詳細</h1>
         <p className="mt-1 text-sm text-muted-foreground">支払申請の詳細と承認操作</p>
@@ -87,7 +87,7 @@ export default function PayoutDetailPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">申請額</p>
               <p className="text-xl font-bold">{formatJPY(Number(payout.amount))}</p>
@@ -98,7 +98,7 @@ export default function PayoutDetailPage() {
             </div>
           </div>
           <Separator />
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">銀行名</p>
               <p className="font-medium">{payout.bankName as string}</p>

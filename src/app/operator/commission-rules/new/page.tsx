@@ -51,7 +51,7 @@ export default function NewCommissionRulePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="mx-auto w-full max-w-2xl space-y-8">
       <div>
         <h1 className="text-2xl font-bold">還元率ルール新規作成</h1>
         <p className="mt-1 text-sm text-muted-foreground">新しい還元率ルールを作成します</p>
@@ -107,7 +107,7 @@ export default function NewCommissionRulePage() {
               </Label>
               <Input id="rate" name="rate" type="number" step="0.01" required />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="effectiveFrom">適用開始日 *</Label>
                 <Input id="effectiveFrom" name="effectiveFrom" type="date" required />
