@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { formatJPY } from "@/lib/utils/currency";
-import { formatDate } from "@/lib/utils/date";
 import { AGENCY_STATUS_LABELS } from "@/lib/utils/constants";
 import { ArrowLeft, Banknote, CheckCircle, RotateCcw, ShieldCheck, ShieldOff, AlertCircle } from "lucide-react";
 import Link from "next/link";

@@ -4,10 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { formatJPY } from "@/lib/utils/currency";
-import { formatDate } from "@/lib/utils/date";
 import { AGENCY_STATUS_LABELS } from "@/lib/utils/constants";
 import Link from "next/link";
-import { Banknote, CheckCircle, Clock, RotateCcw, ShieldCheck } from "lucide-react";
+import { Banknote, Clock, RotateCcw, ShieldCheck } from "lucide-react";
 
 export default async function DepositsPage({
   searchParams,

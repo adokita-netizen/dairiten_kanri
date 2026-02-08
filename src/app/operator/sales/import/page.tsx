@@ -25,7 +25,7 @@ export default function ImportSalesPage() {
 
     const text = await file.text();
     try {
-      const res = await importSalesCSV(text, "current-user");
+      const res = await importSalesCSV(text);
       setResult(res);
     } catch (err) {
       setResult({

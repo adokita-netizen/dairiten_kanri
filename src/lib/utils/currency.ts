@@ -26,6 +26,7 @@ export function calculateCommission(
 
 export function formatJPY(amount: number | string | Decimal): string {
   const num = typeof amount === "number" ? amount : Number(amount);
+  if (isNaN(num)) return "¥0";
   return new Intl.NumberFormat("ja-JP", {
     style: "currency",
     currency: "JPY",

@@ -57,8 +57,9 @@ export async function listSalesRecords(params: {
   return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
 
-export async function importSalesCSV(csvContent: string, userId: string) {
-  await requireOperator();
+export async function importSalesCSV(csvContent: string) {
+  const session = await requireOperator();
+  const userId = session.user.id;
 
   const parsed = Papa.parse(csvContent, {
     header: true,

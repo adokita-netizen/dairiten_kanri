@@ -9,21 +9,39 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { PAYOUT_STATUS_LABELS, BANK_ACCOUNT_TYPE_LABELS } from "@/lib/utils/constants";
+import { PAYOUT_STATUS_LABELS } from "@/lib/utils/constants";
 import { formatJPY } from "@/lib/utils/currency";
-import { formatDateTime } from "@/lib/utils/date";
+
+interface PayoutDetail {
+  id: string;
+  status: string;
+  amount: string | number;
+  netAmount: string | number;
+  transferFee: string | number;
+  bankName: string;
+  bankBranchName: string | null;
+  bankAccountType: string | null;
+  bankAccountNumber: string;
+  bankAccountHolder: string;
+  rejectionReason: string | null;
+  agency?: { code: string; name: string };
+}
 
 export default function PayoutDetailPage() {
   const router = useRouter();
   const params = useParams();
   const payoutId = params.payoutId as string;
-  const [payout, setPayout] = useState<Record<string, unknown> | null>(null);
+  const [payout, setPayout] = useState<PayoutDetail | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch(`/api/data/payouts/${payoutId}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("Not found");
+        return r.json();
+      })
       .then(setPayout)
       .catch(() => router.push("/operator/payouts"));
   }, [payoutId, router]);
@@ -32,45 +50,48 @@ export default function PayoutDetailPage() {
 
   async function handleApprove() {
     setLoading(true);
+    setError("");
     try {
       await approvePayout(payoutId);
       router.push("/operator/payouts");
       router.refresh();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "エラー");
+      setError(err instanceof Error ? err.message : "エラーが発生しました");
       setLoading(false);
     }
   }
 
   async function handleReject() {
     if (!rejectReason.trim()) {
-      alert("却下理由を入力してください");
+      setError("却下理由を入力してください");
       return;
     }
     setLoading(true);
+    setError("");
     try {
       await rejectPayout(payoutId, rejectReason);
       router.push("/operator/payouts");
       router.refresh();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "エラー");
+      setError(err instanceof Error ? err.message : "エラーが発生しました");
       setLoading(false);
     }
   }
 
   async function handleMarkPaid() {
     setLoading(true);
+    setError("");
     try {
       await markPayoutAsPaid(payoutId);
       router.push("/operator/payouts");
       router.refresh();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "エラー");
+      setError(err instanceof Error ? err.message : "エラーが発生しました");
       setLoading(false);
     }
   }
 
-  const status = payout.status as string;
+  const status = payout.status;
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-8">
@@ -78,6 +99,12 @@ export default function PayoutDetailPage() {
         <h1 className="text-2xl font-bold">支払申請詳細</h1>
         <p className="mt-1 text-sm text-muted-foreground">支払申請の詳細と承認操作</p>
       </div>
+
+      {error && (
+        <div className="rounded-lg bg-destructive/5 border border-destructive/20 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -87,6 +114,12 @@ export default function PayoutDetailPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {payout.agency && (
+            <div>
+              <p className="text-sm text-muted-foreground">代理店</p>
+              <p className="font-medium">{payout.agency.code} {payout.agency.name}</p>
+            </div>
+          )}
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">申請額</p>
@@ -101,17 +134,26 @@ export default function PayoutDetailPage() {
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground">銀行名</p>
-              <p className="font-medium">{payout.bankName as string}</p>
+              <p className="font-medium">{payout.bankName || "-"}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">口座番号</p>
-              <p className="font-medium">{payout.bankAccountNumber as string}</p>
+              <p className="font-medium">{payout.bankAccountNumber || "-"}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">口座名義</p>
-              <p className="font-medium">{payout.bankAccountHolder as string}</p>
+              <p className="font-medium">{payout.bankAccountHolder || "-"}</p>
             </div>
           </div>
+          {payout.rejectionReason && (
+            <>
+              <Separator />
+              <div>
+                <p className="text-sm text-muted-foreground">却下理由</p>
+                <p className="font-medium text-destructive">{payout.rejectionReason}</p>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
