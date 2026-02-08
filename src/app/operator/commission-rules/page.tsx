@@ -1,0 +1,86 @@
+import { prisma } from "@/lib/prisma";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { formatJPY } from "@/lib/utils/currency";
+import { formatDate } from "@/lib/utils/date";
+import { COMMISSION_TYPE_LABELS } from "@/lib/utils/constants";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+
+export default async function CommissionRulesPage() {
+  const rules = await prisma.commissionRule.findMany({
+    include: {
+      agency: { select: { code: true, name: true } },
+      plan: { select: { code: true, name: true } },
+    },
+    orderBy: { effectiveFrom: "desc" },
+    take: 100,
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">還元率設定</h1>
+        <Link href="/operator/commission-rules/new">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            新規ルール
+          </Button>
+        </Link>
+      </div>
+
+      <Card>
+        <CardContent className="pt-6">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>代理店</TableHead>
+                <TableHead>プラン</TableHead>
+                <TableHead>種別</TableHead>
+                <TableHead>還元率/金額</TableHead>
+                <TableHead>適用開始</TableHead>
+                <TableHead>適用終了</TableHead>
+                <TableHead>状態</TableHead>
+                <TableHead>説明</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rules.map((rule) => {
+                const isActive = !rule.effectiveTo || new Date(rule.effectiveTo) > new Date();
+                return (
+                  <TableRow key={rule.id}>
+                    <TableCell className="font-medium">{rule.agency.code} {rule.agency.name}</TableCell>
+                    <TableCell>{rule.plan ? rule.plan.name : "全プラン"}</TableCell>
+                    <TableCell>{COMMISSION_TYPE_LABELS[rule.commissionType]}</TableCell>
+                    <TableCell className="font-bold">
+                      {rule.commissionType === "PERCENTAGE"
+                        ? `${Number(rule.rate)}%`
+                        : formatJPY(Number(rule.rate))}
+                    </TableCell>
+                    <TableCell>{formatDate(rule.effectiveFrom)}</TableCell>
+                    <TableCell>{rule.effectiveTo ? formatDate(rule.effectiveTo) : "-"}</TableCell>
+                    <TableCell>
+                      <Badge variant={isActive ? "success" : "secondary"}>
+                        {isActive ? "有効" : "終了"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{rule.description || "-"}</TableCell>
+                  </TableRow>
+                );
+              })}
+              {rules.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                    還元率ルールが設定されていません。
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
