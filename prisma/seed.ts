@@ -60,6 +60,9 @@ async function main() {
       bankAccountHolder: "カ）テストダイリテン",
       payoutThreshold: 10000,
       holdPeriodDays: 14,
+      depositAmount: 132000,
+      depositPaid: true,
+      depositRefundable: false,
     },
   });
 
@@ -92,6 +95,9 @@ async function main() {
       status: "ACTIVE",
       payoutThreshold: 10000,
       holdPeriodDays: 7,
+      depositAmount: 132000,
+      depositPaid: false,
+      depositRefundable: false,
     },
   });
 

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { formatJPY } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/date";
 import { COMMISSION_EVENT_STATUS_LABELS, PAYOUT_STATUS_LABELS } from "@/lib/utils/constants";
-import { Wallet, TrendingUp, CheckCircle, Clock, ArrowRight, AlertCircle, ArrowUpRight } from "lucide-react";
+import { Wallet, TrendingUp, CheckCircle, Clock, ArrowRight, AlertCircle, ArrowUpRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 export default async function AgencyDashboard() {
@@ -22,7 +22,14 @@ export default async function AgencyDashboard() {
   const [agency, balance, monthlySales, recentSales, pendingPayouts, latestPayout] = await Promise.all([
     prisma.agency.findUniqueOrThrow({
       where: { id: agencyId },
-      select: { payoutThreshold: true, name: true },
+      select: {
+        payoutThreshold: true,
+        name: true,
+        depositAmount: true,
+        depositPaid: true,
+        depositRefunded: true,
+        depositRefundable: true,
+      },
     }),
     prisma.balance.findUnique({ where: { agencyId } }),
     prisma.salesRecord.aggregate({
@@ -164,6 +171,44 @@ export default async function AgencyDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Deposit Status */}
+      {agency.depositPaid && !agency.depositRefunded && (
+        <Card className={agency.depositRefundable ? "border-emerald-200 bg-emerald-50/30" : ""}>
+          <CardContent className="pt-5">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${agency.depositRefundable ? "bg-emerald-100" : "bg-blue-100"}`}>
+                <ShieldCheck className={`h-5 w-5 ${agency.depositRefundable ? "text-emerald-600" : "text-blue-600"}`} />
+              </div>
+              <div>
+                <p className="font-semibold">
+                  デポジット: {formatJPY(Number(agency.depositAmount))}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {agency.depositRefundable
+                    ? "返金可能 - 返金をご希望の場合は運営者にお問い合わせください"
+                    : "預かり中"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      {agency.depositRefunded && (
+        <Card>
+          <CardContent className="pt-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100">
+                <CheckCircle className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-semibold">デポジット: {formatJPY(Number(agency.depositAmount))}</p>
+                <p className="text-sm text-muted-foreground">返金済み</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Monthly Sales & Recent Sales */}
       <Card>

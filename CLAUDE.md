@@ -25,6 +25,7 @@ src/
       sales/               # 売上管理・CSV取込
       calculations/        # 報酬計算
       payouts/             # 支払管理
+      deposits/            # デポジット管理
       audit-log/           # 監査ログ
       settings/            # 設定
     agency/                # 代理店画面
@@ -73,6 +74,32 @@ npx prisma db seed       # シードデータ投入
 4. **繰越**: 閾値未達の場合は残高が自動繰越
 5. **還元率履歴**: 変更時は旧ルールの終了日を設定し、新ルールを作成
 6. **金額計算**: Decimal.jsを使用し、切り捨て（ROUND_DOWN）で計算
+7. **デポジット管理**: 代理店からデポジットを預かり、閾値条件で返金を管理
+
+## デポジット管理
+### 概要
+代理店登録時にデポジット（保証金）を預かり、運営者が入金確認・返金処理を行う。
+
+### Agencyモデルのデポジット関連フィールド
+- `depositAmount` (Decimal): デポジット金額（税込、デフォルト132,000円）
+- `depositPaid` (Boolean): 入金済みかどうか
+- `depositRefunded` (Boolean): 返金済みかどうか
+- `depositRefundable` (Boolean): 返金可能フラグ（代理店側に表示するか）
+- `depositRefundNote` (String?): 返金に関するメモ
+
+### 運営者側機能 (`/operator/deposits`)
+- デポジット一覧: フィルター（全て/未入金/預かり中/返金済）
+- サマリーカード: 預かり総額、未入金数、返金済み数
+- 個別管理 (`/operator/deposits/[agencyId]`):
+  - 入金確認（未入金 → 入金済み）
+  - 返金可能フラグのトグル（代理店側への表示制御）
+  - デポジット金額の変更
+  - 返金処理（入金済み → 返金済み）
+
+### 代理店側表示
+- ダッシュボード: デポジット状況カード（預かり中/返金可能/返金済み）
+- プロフィール: デポジット詳細（金額、状態、返金可能メッセージ）
+- `depositRefundable` が true の場合のみ「返金可能」と表示される
 
 ## Prisma 7 注意事項
 - `datasource`の`url`は`prisma.config.ts`で設定（schema.prismaには書かない）
