@@ -53,7 +53,7 @@ export default async function AgencyDetailPage({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">{agency.name}</h1>
@@ -114,7 +114,9 @@ export default async function AgencyDetailPage({
 
         <TabsContent value="overview" className="space-y-4 pt-4">
           <Card>
-            <CardHeader><CardTitle>基本情報</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">基本情報</CardTitle>
+            </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <div>
                 <p className="text-sm text-muted-foreground">担当者名</p>
@@ -144,7 +146,9 @@ export default async function AgencyDetailPage({
           </Card>
 
           <Card>
-            <CardHeader><CardTitle>振込先情報</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">振込先情報</CardTitle>
+            </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <div>
                 <p className="text-sm text-muted-foreground">銀行名</p>
@@ -170,7 +174,9 @@ export default async function AgencyDetailPage({
           </Card>
 
           <Card>
-            <CardHeader><CardTitle>ユーザー一覧</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">ユーザー一覧</CardTitle>
+            </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>

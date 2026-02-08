@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlertCircle } from "lucide-react";
 
 export default function NewAgencyPage() {
   const router = useRouter();
@@ -38,8 +39,11 @@ export default function NewAgencyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">代理店新規登録</h1>
+    <div className="mx-auto max-w-2xl space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">代理店新規登録</h1>
+        <p className="mt-1 text-sm text-muted-foreground">新しい代理店を登録します</p>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>基本情報</CardTitle>
@@ -47,7 +51,10 @@ export default function NewAgencyPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+              <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </div>
             )}
             <div className="space-y-2">
               <Label htmlFor="name">代理店名 *</Label>

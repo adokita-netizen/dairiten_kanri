@@ -3,8 +3,11 @@ import { DEFAULT_PAYOUT_THRESHOLD, DEFAULT_HOLD_PERIOD_DAYS, DEFAULT_TAX_RATE } 
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">設定</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">設定</h1>
+        <p className="text-muted-foreground text-sm mt-1">システム全体のデフォルト設定</p>
+      </div>
 
       <Card>
         <CardHeader>
@@ -15,15 +18,15 @@ export default function SettingsPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <div>
               <p className="text-sm text-muted-foreground">デフォルト最低支払額</p>
-              <p className="text-lg font-bold">{DEFAULT_PAYOUT_THRESHOLD.toLocaleString()}円</p>
+              <p className="text-lg font-semibold">{DEFAULT_PAYOUT_THRESHOLD.toLocaleString()}円</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">デフォルト保留期間</p>
-              <p className="text-lg font-bold">{DEFAULT_HOLD_PERIOD_DAYS}日</p>
+              <p className="text-lg font-semibold">{DEFAULT_HOLD_PERIOD_DAYS}日</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">消費税率</p>
-              <p className="text-lg font-bold">{DEFAULT_TAX_RATE}%</p>
+              <p className="text-lg font-semibold">{DEFAULT_TAX_RATE}%</p>
             </div>
           </div>
         </CardContent>

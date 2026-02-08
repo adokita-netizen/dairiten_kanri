@@ -18,7 +18,7 @@ SaaS事業における代理店管理・売上レベニューシェア管理サ�
 src/
   app/
     (auth)/login/          # ログインページ
-    (operator)/            # 運営者ルートグループ
+    operator/              # 運営者画面
       dashboard/           # 運営者ダッシュボード
       agencies/            # 代理店管理
       commission-rules/    # 還元率設定
@@ -27,7 +27,7 @@ src/
       payouts/             # 支払管理
       audit-log/           # 監査ログ
       settings/            # 設定
-    (agency)/              # 代理店ルートグループ
+    agency/                # 代理店画面
       dashboard/           # 代理店ダッシュボード
       sales/               # 売上明細
       payouts/             # 引き出し履歴・申請
@@ -78,3 +78,24 @@ npx prisma db seed       # シードデータ投入
 - `datasource`の`url`は`prisma.config.ts`で設定（schema.prismaには書かない）
 - `provider`は`prisma-client`（`prisma-client-js`ではない）
 - 出力先は`../src/generated/prisma`
+
+## デプロイ（Vercel + Supabase）
+
+### Supabase セットアップ
+1. Supabaseプロジェクトを作成
+2. `.env`のDATABASE_URLをSupabaseのPostgreSQL URLに変更:
+   ```
+   DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+   DIRECT_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+   ```
+3. `prisma.config.ts`の`datasource.url`でDIRECT_URLを使用（マイグレーション用）
+4. Prismaクライアントを再生成: `npx prisma generate`
+5. `src/lib/prisma.ts`の`accelerateUrl`を`datasourceUrl`に変更
+6. マイグレーション実行: `npx prisma migrate deploy`
+7. シードデータ投入: `npx prisma db seed`
+
+### Vercel セットアップ
+1. GitHubリポジトリをVercelに接続
+2. 環境変数を設定: DATABASE_URL, AUTH_SECRET, NEXTAUTH_URL, WEBHOOK_SECRET
+3. Build Commandはデフォルト（`npm run build`）
+4. Prisma generate はpostinstallスクリプトで自動実行される

@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatJPY } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/date";
-import { PAYOUT_STATUS_LABELS, AGENCY_STATUS_LABELS } from "@/lib/utils/constants";
-import { Building2, Receipt, Wallet, Clock } from "lucide-react";
+import { PAYOUT_STATUS_LABELS } from "@/lib/utils/constants";
+import { Building2, Receipt, Wallet, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -47,66 +47,80 @@ export default async function OperatorDashboard() {
   });
   const agencyMap = new Map(agencies.map((a) => [a.id, a]));
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">ダッシュボード</h1>
+  const stats = [
+    {
+      label: "有効代理店数",
+      value: `${agencyCount}社`,
+      icon: Building2,
+      color: "text-blue-600 bg-blue-50",
+    },
+    {
+      label: "今月の売上（税抜）",
+      value: formatJPY(Number(monthlySales._sum.saleAmountExTax || 0)),
+      sub: `${monthlySales._count}件`,
+      icon: Receipt,
+      color: "text-emerald-600 bg-emerald-50",
+    },
+    {
+      label: "未処理支払申請",
+      value: formatJPY(Number(pendingPayouts._sum.amount || 0)),
+      sub: `${pendingPayouts._count}件`,
+      icon: Wallet,
+      color: "text-amber-600 bg-amber-50",
+    },
+    {
+      label: "今月の報酬合計",
+      value: formatJPY(topAgencies.reduce((sum, a) => sum + Number(a._sum.agencyAmount || 0), 0)),
+      icon: Clock,
+      color: "text-violet-600 bg-violet-50",
+    },
+  ];
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">有効代理店数</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{agencyCount}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">今月の売上</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatJPY(Number(monthlySales._sum.saleAmountExTax || 0))}</div>
-            <p className="text-xs text-muted-foreground">{monthlySales._count}件</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">未処理支払</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatJPY(Number(pendingPayouts._sum.amount || 0))}</div>
-            <p className="text-xs text-muted-foreground">{pendingPayouts._count}件</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">今月の報酬合計</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatJPY(topAgencies.reduce((sum, a) => sum + Number(a._sum.agencyAmount || 0), 0))}
-            </div>
-          </CardContent>
-        </Card>
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">ダッシュボード</h1>
+        <p className="text-muted-foreground text-sm mt-1">システム全体の概要を確認できます</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                  {stat.sub && <p className="text-xs text-muted-foreground">{stat.sub}</p>}
+                </div>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.color}`}>
+                  <stat.icon className="h-5 w-5" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Pending Payouts */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>未処理の支払申請</CardTitle>
               <Link href="/operator/payouts">
-                <Button variant="outline" size="sm">全て見る</Button>
+                <Button variant="ghost" size="sm" className="text-xs gap-1">
+                  全て見る <ArrowRight className="h-3 w-3" />
+                </Button>
               </Link>
             </div>
           </CardHeader>
           <CardContent>
             {recentPayouts.length === 0 ? (
-              <p className="text-sm text-muted-foreground">未処理の支払申請はありません。</p>
+              <div className="py-8 text-center">
+                <p className="text-sm text-muted-foreground">未処理の支払申請はありません</p>
+              </div>
             ) : (
               <Table>
                 <TableHeader>
@@ -121,8 +135,8 @@ export default async function OperatorDashboard() {
                   {recentPayouts.map((p) => (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{p.agency.name}</TableCell>
-                      <TableCell>{formatJPY(Number(p.amount))}</TableCell>
-                      <TableCell>{formatDate(p.requestedAt)}</TableCell>
+                      <TableCell className="font-semibold">{formatJPY(Number(p.amount))}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDate(p.requestedAt)}</TableCell>
                       <TableCell>
                         <Badge variant="warning">{PAYOUT_STATUS_LABELS[p.status]}</Badge>
                       </TableCell>
@@ -134,42 +148,48 @@ export default async function OperatorDashboard() {
           </CardContent>
         </Card>
 
+        {/* Top Agencies */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>代理店別売上ランキング（今月）</CardTitle>
               <Link href="/operator/agencies">
-                <Button variant="outline" size="sm">全て見る</Button>
+                <Button variant="ghost" size="sm" className="text-xs gap-1">
+                  全て見る <ArrowRight className="h-3 w-3" />
+                </Button>
               </Link>
             </div>
           </CardHeader>
           <CardContent>
             {topAgencies.length === 0 ? (
-              <p className="text-sm text-muted-foreground">今月の売上データはありません。</p>
+              <div className="py-8 text-center">
+                <p className="text-sm text-muted-foreground">今月の売上データはありません</p>
+              </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>代理店</TableHead>
-                    <TableHead>売上</TableHead>
-                    <TableHead>報酬</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topAgencies.map((a) => {
-                    const agency = agencyMap.get(a.agencyId);
-                    return (
-                      <TableRow key={a.agencyId}>
-                        <TableCell className="font-medium">
-                          {agency ? `${agency.code} ${agency.name}` : a.agencyId}
-                        </TableCell>
-                        <TableCell>{formatJPY(Number(a._sum.saleAmount || 0))}</TableCell>
-                        <TableCell>{formatJPY(Number(a._sum.agencyAmount || 0))}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <div className="space-y-3">
+                {topAgencies.map((a, index) => {
+                  const agency = agencyMap.get(a.agencyId);
+                  return (
+                    <div key={a.agencyId} className="flex items-center gap-4 rounded-lg border p-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">
+                          {agency ? agency.name : a.agencyId}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {agency?.code}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-sm">{formatJPY(Number(a._sum.saleAmount || 0))}</p>
+                        <p className="text-xs text-emerald-600">報酬 {formatJPY(Number(a._sum.agencyAmount || 0))}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </CardContent>
         </Card>

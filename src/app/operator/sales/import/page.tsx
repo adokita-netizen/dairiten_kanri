@@ -38,8 +38,11 @@ export default function ImportSalesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">売上データCSV取込</h1>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">売上データCSV取込</h1>
+        <p className="mt-1 text-sm text-muted-foreground">CSVファイルから売上データを一括取込します</p>
+      </div>
 
       <Card>
         <CardHeader>

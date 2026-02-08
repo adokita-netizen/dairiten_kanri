@@ -82,7 +82,7 @@ export default function EditAgencyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-8">
       <h1 className="text-2xl font-bold">{agency.name} - 編集</h1>
 
       {error && (

@@ -39,9 +39,12 @@ export default async function SalesPage({
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">売上管理</h1>
+        <div>
+          <h1 className="text-2xl font-bold">売上管理</h1>
+          <p className="text-muted-foreground text-sm mt-1">売上データの管理とCSV取込</p>
+        </div>
         <Link href="/operator/sales/import">
           <Button>
             <Upload className="mr-2 h-4 w-4" />
@@ -82,7 +85,7 @@ export default async function SalesPage({
                   <TableCell>
                     {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
                   </TableCell>
-                  <TableCell className="font-medium">
+                  <TableCell className="font-semibold">
                     {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
                   </TableCell>
                   <TableCell>
@@ -98,7 +101,7 @@ export default async function SalesPage({
               ))}
               {sales.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
                     売上データがありません。
                   </TableCell>
                 </TableRow>

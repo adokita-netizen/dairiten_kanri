@@ -51,8 +51,11 @@ export default function NewCommissionRulePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">還元率ルール新規作成</h1>
+    <div className="mx-auto max-w-2xl space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">還元率ルール新規作成</h1>
+        <p className="mt-1 text-sm text-muted-foreground">新しい還元率ルールを作成します</p>
+      </div>
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-4">

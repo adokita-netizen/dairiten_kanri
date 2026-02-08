@@ -73,8 +73,11 @@ export default function PayoutDetailPage() {
   const status = payout.status as string;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">支払申請詳細</h1>
+    <div className="mx-auto max-w-2xl space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">支払申請詳細</h1>
+        <p className="mt-1 text-sm text-muted-foreground">支払申請の詳細と承認操作</p>
+      </div>
 
       <Card>
         <CardHeader>

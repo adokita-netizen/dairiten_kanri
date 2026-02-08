@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { formatJPY } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/date";
 import { COMMISSION_EVENT_STATUS_LABELS, PAYOUT_STATUS_LABELS } from "@/lib/utils/constants";
-import { Wallet, TrendingUp, CheckCircle, Clock } from "lucide-react";
+import { Wallet, TrendingUp, CheckCircle, Clock, ArrowRight, AlertCircle, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 export default async function AgencyDashboard() {
@@ -59,93 +59,126 @@ export default async function AgencyDashboard() {
   const canRequestPayout = availableBalance >= threshold;
   const amountUntilThreshold = canRequestPayout ? 0 : threshold - availableBalance;
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">ダッシュボード</h1>
+  const stats = [
+    {
+      label: "引き出し可能額",
+      value: formatJPY(availableBalance),
+      sub: pendingAmount > 0 ? `申請中: ${formatJPY(pendingAmount)}` : undefined,
+      icon: Wallet,
+      color: "text-blue-600 bg-blue-50",
+    },
+    {
+      label: "保留中の報酬",
+      value: formatJPY(holdBalance),
+      icon: Clock,
+      color: "text-amber-600 bg-amber-50",
+    },
+    {
+      label: "累計報酬",
+      value: formatJPY(totalEarned),
+      icon: TrendingUp,
+      color: "text-emerald-600 bg-emerald-50",
+    },
+    {
+      label: "累計支払済",
+      value: formatJPY(totalPaidOut),
+      icon: CheckCircle,
+      color: "text-violet-600 bg-violet-50",
+    },
+  ];
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">確定残高</CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatJPY(availableBalance)}</div>
-            {pendingAmount > 0 && (
-              <p className="text-xs text-muted-foreground">申請中: {formatJPY(pendingAmount)}</p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">保留中</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatJPY(holdBalance)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">累計報酬</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatJPY(totalEarned)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">支払済</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatJPY(totalPaidOut)}</div>
-          </CardContent>
-        </Card>
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">ダッシュボード</h1>
+        <p className="text-muted-foreground text-sm mt-1">売上と報酬の概要を確認できます</p>
       </div>
 
-      <Card>
-        <CardHeader>
+      {/* Stats Cards */}
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                  {stat.sub && <p className="text-xs text-muted-foreground">{stat.sub}</p>}
+                </div>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.color}`}>
+                  <stat.icon className="h-5 w-5" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Payout Status Card */}
+      <Card className={canRequestPayout ? "border-emerald-200 bg-emerald-50/30" : ""}>
+        <CardContent className="pt-5">
           <div className="flex items-center justify-between">
-            <CardTitle>引き出し申請</CardTitle>
+            <div className="flex items-center gap-3">
+              {canRequestPayout ? (
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                  <CheckCircle className="h-5 w-5 text-emerald-600" />
+                </div>
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+                  <AlertCircle className="h-5 w-5 text-amber-600" />
+                </div>
+              )}
+              <div>
+                {canRequestPayout ? (
+                  <>
+                    <p className="font-semibold text-emerald-700">引き出し申請が可能です</p>
+                    <p className="text-sm text-emerald-600/80">
+                      確定残高が閾値（{formatJPY(threshold)}）以上です
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold">引き出し申請まであと {formatJPY(amountUntilThreshold)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      閾値: {formatJPY(threshold)} / 未達分は自動で翌月に繰越
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
             <Link href="/agency/payouts/new">
-              <Button disabled={!canRequestPayout} size="sm">
-                引き出し申請
+              <Button disabled={!canRequestPayout} className="gap-1.5">
+                引き出し申請 <ArrowUpRight className="h-4 w-4" />
               </Button>
             </Link>
           </div>
-        </CardHeader>
-        <CardContent>
-          {canRequestPayout ? (
-            <p className="text-sm text-green-600">
-              確定残高が閾値（{formatJPY(threshold)}）以上です。引き出し申請が可能です。
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              確定残高が閾値（{formatJPY(threshold)}）に達していません。
-              あと{formatJPY(amountUntilThreshold)}で申請可能になります。未達分は自動で翌月以降に繰り越されます。
-            </p>
-          )}
           {latestPayout && (
-            <div className="mt-3 rounded-md bg-muted p-3">
-              <p className="text-sm">
-                最新の申請: {formatJPY(Number(latestPayout.amount))} -{" "}
-                <Badge variant={latestPayout.status === "PAID" ? "success" : "warning"}>
-                  {PAYOUT_STATUS_LABELS[latestPayout.status]}
-                </Badge>
+            <div className="mt-4 pt-4 border-t flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                最新の申請: {formatJPY(Number(latestPayout.amount))}
               </p>
+              <Badge variant={latestPayout.status === "PAID" ? "success" : "warning"}>
+                {PAYOUT_STATUS_LABELS[latestPayout.status]}
+              </Badge>
             </div>
           )}
         </CardContent>
       </Card>
 
+      {/* Monthly Sales & Recent Sales */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>今月の売上: {formatJPY(Number(monthlySales._sum.saleAmountExTax || 0))}（{monthlySales._count}件）</CardTitle>
+            <div>
+              <CardTitle>売上明細</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                今月の売上: {formatJPY(Number(monthlySales._sum.saleAmountExTax || 0))}（{monthlySales._count}件）
+              </p>
+            </div>
             <Link href="/agency/sales">
-              <Button variant="outline" size="sm">全て見る</Button>
+              <Button variant="ghost" size="sm" className="text-xs gap-1">
+                全て見る <ArrowRight className="h-3 w-3" />
+              </Button>
             </Link>
           </div>
         </CardHeader>
@@ -165,14 +198,14 @@ export default async function AgencyDashboard() {
             <TableBody>
               {recentSales.map((sale) => (
                 <TableRow key={sale.id}>
-                  <TableCell>{formatDate(sale.transactionDate)}</TableCell>
-                  <TableCell>{sale.customerName || sale.customerRef || "-"}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(sale.transactionDate)}</TableCell>
+                  <TableCell className="font-medium">{sale.customerName || sale.customerRef || "-"}</TableCell>
                   <TableCell>{sale.plan?.name || "-"}</TableCell>
-                  <TableCell>{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
+                  <TableCell className="font-semibold">{formatJPY(Number(sale.saleAmountExTax))}</TableCell>
                   <TableCell>
                     {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
                   </TableCell>
-                  <TableCell className="font-medium text-green-700">
+                  <TableCell className="font-semibold text-emerald-600">
                     {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
                   </TableCell>
                   <TableCell>
@@ -184,7 +217,9 @@ export default async function AgencyDashboard() {
               ))}
               {recentSales.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">売上データがありません</TableCell>
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                    売上データがありません
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>

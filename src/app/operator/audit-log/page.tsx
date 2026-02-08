@@ -43,8 +43,11 @@ export default async function AuditLogPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">監査ログ</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">監査ログ</h1>
+        <p className="text-muted-foreground text-sm mt-1">システムの操作履歴を確認できます</p>
+      </div>
 
       <Card>
         <CardContent className="pt-6">
@@ -76,7 +79,7 @@ export default async function AuditLogPage({
               ))}
               {logs.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                     監査ログがありません。
                   </TableCell>
                 </TableRow>

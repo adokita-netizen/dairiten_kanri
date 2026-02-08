@@ -48,8 +48,11 @@ export default function CalculationsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">報酬計算</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">報酬計算</h1>
+        <p className="mt-1 text-sm text-muted-foreground">売上データに基づく報酬計算と確定処理</p>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

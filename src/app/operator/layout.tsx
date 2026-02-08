@@ -13,9 +13,9 @@ export default async function OperatorLayout({ children }: { children: React.Rea
   return (
     <div className="flex min-h-screen">
       <Sidebar role="OPERATOR" />
-      <div className="flex-1 pl-60">
+      <div className="flex-1 pl-64">
         <Header userName={session.user.name} role="OPERATOR" />
-        <main className="p-6">{children}</main>
+        <main className="p-8">{children}</main>
       </div>
     </div>
   );

@@ -45,9 +45,12 @@ export default async function AgencySalesPage({
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">売上明細</h1>
+        <div>
+          <h1 className="text-2xl font-bold">売上明細</h1>
+          <p className="text-sm text-muted-foreground mt-1">売上データの詳細と報酬状況を確認できます</p>
+        </div>
         <Button variant="outline" size="sm" asChild>
           <a href={`/api/export/sales?format=csv`} download>CSV出力</a>
         </Button>

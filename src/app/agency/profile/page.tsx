@@ -24,8 +24,11 @@ export default async function AgencyProfilePage() {
   });
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">プロフィール</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">プロフィール</h1>
+        <p className="text-sm text-muted-foreground mt-1">登録情報と現在の還元率を確認できます</p>
+      </div>
 
       <Card>
         <CardHeader>

@@ -51,9 +51,12 @@ export default async function AgenciesPage({
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">代理店管理</h1>
+        <div>
+          <h1 className="text-2xl font-bold">代理店管理</h1>
+          <p className="text-muted-foreground text-sm mt-1">登録済み代理店の一覧と管理</p>
+        </div>
         <Link href="/operator/agencies/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
@@ -88,7 +91,7 @@ export default async function AgenciesPage({
                       {AGENCY_STATUS_LABELS[agency.status]}
                     </Badge>
                   </TableCell>
-                  <TableCell>{formatJPY(Number(agency.balance?.confirmedBalance || 0))}</TableCell>
+                  <TableCell className="font-semibold">{formatJPY(Number(agency.balance?.confirmedBalance || 0))}</TableCell>
                   <TableCell>{agency._count.salesRecords}</TableCell>
                   <TableCell>{formatDate(agency.createdAt)}</TableCell>
                   <TableCell>
@@ -100,7 +103,7 @@ export default async function AgenciesPage({
               ))}
               {agencies.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                     代理店が登録されていません。
                   </TableCell>
                 </TableRow>

@@ -41,8 +41,11 @@ export default async function PayoutsPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">支払管理</h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold">支払管理</h1>
+        <p className="text-muted-foreground text-sm mt-1">代理店からの支払申請を管理します</p>
+      </div>
 
       <div className="flex gap-2">
         <Link href="/operator/payouts"><Button variant={!params.status ? "default" : "outline"} size="sm">全て</Button></Link>
@@ -75,7 +78,7 @@ export default async function PayoutsPage({
                   <TableCell className="font-medium">{p.agency.code} {p.agency.name}</TableCell>
                   <TableCell>{formatJPY(Number(p.amount))}</TableCell>
                   <TableCell>{formatJPY(Number(p.transferFee))}</TableCell>
-                  <TableCell className="font-bold">{formatJPY(Number(p.netAmount))}</TableCell>
+                  <TableCell className="font-semibold">{formatJPY(Number(p.netAmount))}</TableCell>
                   <TableCell>
                     <Badge variant={getPayoutVariant(p.status)}>{PAYOUT_STATUS_LABELS[p.status]}</Badge>
                   </TableCell>
@@ -90,7 +93,7 @@ export default async function PayoutsPage({
               ))}
               {payouts.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
                     支払申請がありません。
                   </TableCell>
                 </TableRow>

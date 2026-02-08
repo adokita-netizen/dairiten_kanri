@@ -39,14 +39,27 @@ export function Sidebar({ role }: { role: "OPERATOR" | "AGENCY" }) {
   const items = role === "OPERATOR" ? operatorNav : agencyNav;
 
   return (
-    <aside className="fixed left-0 top-0 z-30 flex h-screen w-60 flex-col border-r bg-background">
-      <div className="flex h-14 items-center border-b px-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <Building2 className="h-5 w-5" />
-          <span>代理店管理</span>
-        </Link>
+    <aside className="fixed left-0 top-0 z-30 flex h-screen w-64 flex-col bg-sidebar-bg text-sidebar-foreground">
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-3 px-5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-accent">
+          <Building2 className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <Link href="/" className="text-base font-bold text-white tracking-wide">
+            代理店管理
+          </Link>
+          <p className="text-[11px] text-sidebar-foreground/60">
+            {role === "OPERATOR" ? "運営管理画面" : "代理店画面"}
+          </p>
+        </div>
       </div>
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+
+      {/* Divider */}
+      <div className="mx-4 border-t border-white/10" />
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {items.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
@@ -54,18 +67,25 @@ export function Sidebar({ role }: { role: "OPERATOR" | "AGENCY" }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] font-medium transition-all duration-150",
                 isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "bg-sidebar-accent text-white shadow-md shadow-sidebar-accent/30"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-muted hover:text-white"
               )}
             >
-              <item.icon className="h-4 w-4" />
+              <item.icon className={cn("h-[18px] w-[18px]", isActive ? "text-white" : "text-sidebar-foreground/50")} />
               {item.label}
             </Link>
           );
         })}
       </nav>
+
+      {/* Footer */}
+      <div className="border-t border-white/10 px-4 py-3">
+        <p className="text-[11px] text-sidebar-foreground/40">
+          Revenue Share Management
+        </p>
+      </div>
     </aside>
   );
 }

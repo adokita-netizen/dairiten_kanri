@@ -21,9 +21,12 @@ export default async function AgencyPayoutsPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">引き出し履歴</h1>
+        <div>
+          <h1 className="text-2xl font-bold">引き出し履歴</h1>
+          <p className="text-sm text-muted-foreground mt-1">引き出し申請の履歴と状態</p>
+        </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
             <a href={`/api/export/payouts?format=csv`} download>CSV出力</a>

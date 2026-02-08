@@ -20,9 +20,12 @@ export default async function CommissionRulesPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">還元率設定</h1>
+        <div>
+          <h1 className="text-2xl font-bold">還元率設定</h1>
+          <p className="text-muted-foreground text-sm mt-1">代理店ごとの還元率ルールを管理します</p>
+        </div>
         <Link href="/operator/commission-rules/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
@@ -54,7 +57,7 @@ export default async function CommissionRulesPage() {
                     <TableCell className="font-medium">{rule.agency.code} {rule.agency.name}</TableCell>
                     <TableCell>{rule.plan ? rule.plan.name : "全プラン"}</TableCell>
                     <TableCell>{COMMISSION_TYPE_LABELS[rule.commissionType]}</TableCell>
-                    <TableCell className="font-bold">
+                    <TableCell className="font-semibold">
                       {rule.commissionType === "PERCENTAGE"
                         ? `${Number(rule.rate)}%`
                         : formatJPY(Number(rule.rate))}
@@ -72,7 +75,7 @@ export default async function CommissionRulesPage() {
               })}
               {rules.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                     還元率ルールが設定されていません。
                   </TableCell>
                 </TableRow>

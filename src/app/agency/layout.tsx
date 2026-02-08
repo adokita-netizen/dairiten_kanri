@@ -19,9 +19,9 @@ export default async function AgencyLayout({ children }: { children: React.React
   return (
     <div className="flex min-h-screen">
       <Sidebar role="AGENCY" />
-      <div className="flex-1 pl-60">
+      <div className="flex-1 pl-64">
         <Header userName={session.user.name} role="AGENCY" agencyName={agency?.name} />
-        <main className="p-6">{children}</main>
+        <main className="p-8">{children}</main>
       </div>
     </div>
   );
