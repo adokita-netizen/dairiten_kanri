@@ -33,3 +33,12 @@ export function addDays(date: Date, days: number): Date {
   result.setDate(result.getDate() + days);
   return result;
 }
+
+/**
+ * HTML date input ("YYYY-MM-DD") をローカルタイムゾーンの Date に変換。
+ * new Date("2024-01-15") は UTC midnight になるため、日本時間でずれる問題を防止。
+ */
+export function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}

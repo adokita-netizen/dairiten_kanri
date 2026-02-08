@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createCommissionRule } from "@/lib/services/commission.service";
+import { parseLocalDate } from "@/lib/utils/date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,9 +37,9 @@ export default function NewCommissionRulePage() {
         planId: selectedPlan || null,
         commissionType: commissionType as "PERCENTAGE" | "FIXED_AMOUNT",
         rate: Number(formData.get("rate")),
-        effectiveFrom: new Date(formData.get("effectiveFrom") as string),
+        effectiveFrom: parseLocalDate(formData.get("effectiveFrom") as string),
         effectiveTo: formData.get("effectiveTo")
-          ? new Date(formData.get("effectiveTo") as string)
+          ? parseLocalDate(formData.get("effectiveTo") as string)
           : null,
         description: (formData.get("description") as string) || undefined,
       });

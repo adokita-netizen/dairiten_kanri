@@ -76,7 +76,7 @@ export async function calculateRevenueShares(options: {
       const operatorAmount = saleAmount.minus(agencyAmount);
 
       const holdDays = sale.agency.holdPeriodDays;
-      const holdUntil = addDays(new Date(), holdDays);
+      const holdUntil = addDays(sale.transactionDate, holdDays);
 
       eventsToCreate.push({
         agencyId,
