@@ -11,21 +11,12 @@ export async function requestPayout(agencyId: string) {
     throw new Error("Forbidden");
   }
 
+  // 事前チェック（トランザクション外）
   const balanceSummary = await getBalanceSummary(agencyId);
   if (!balanceSummary.canRequestPayout) {
     throw new Error(
       `確定残高が最低支払額（${balanceSummary.threshold.toLocaleString()}円）に達していません。あと${balanceSummary.amountUntilThreshold.toLocaleString()}円必要です。`
     );
-  }
-
-  const existingPending = await prisma.payoutRequest.findFirst({
-    where: {
-      agencyId,
-      status: { in: ["REQUESTED", "APPROVED"] },
-    },
-  });
-  if (existingPending) {
-    throw new Error("既に処理中の引き出し申請があります。");
   }
 
   const agency = await prisma.agency.findUniqueOrThrow({
@@ -40,21 +31,34 @@ export async function requestPayout(agencyId: string) {
     throw new Error("代理店のステータスが有効ではありません。");
   }
 
-  const amount = balanceSummary.availableBalance;
+  // トランザクション内で重複チェック+作成（レース条件防止）
+  const payout = await prisma.$transaction(async (tx) => {
+    const existingPending = await tx.payoutRequest.findFirst({
+      where: {
+        agencyId,
+        status: { in: ["REQUESTED", "APPROVED"] },
+      },
+    });
+    if (existingPending) {
+      throw new Error("既に処理中の引き出し申請があります。");
+    }
 
-  const payout = await prisma.payoutRequest.create({
-    data: {
-      agencyId,
-      amount,
-      transferFee: 0,
-      netAmount: amount,
-      status: "REQUESTED",
-      bankName: agency.bankName,
-      bankBranchName: agency.bankBranchName,
-      bankAccountType: agency.bankAccountType,
-      bankAccountNumber: agency.bankAccountNumber,
-      bankAccountHolder: agency.bankAccountHolder,
-    },
+    const amount = balanceSummary.availableBalance;
+
+    return tx.payoutRequest.create({
+      data: {
+        agencyId,
+        amount,
+        transferFee: 0,
+        netAmount: amount,
+        status: "REQUESTED",
+        bankName: agency.bankName!,
+        bankBranchName: agency.bankBranchName,
+        bankAccountType: agency.bankAccountType,
+        bankAccountNumber: agency.bankAccountNumber!,
+        bankAccountHolder: agency.bankAccountHolder!,
+      },
+    });
   });
 
   await logAudit({
@@ -62,7 +66,7 @@ export async function requestPayout(agencyId: string) {
     action: "PAYOUT",
     entityType: "PayoutRequest",
     entityId: payout.id,
-    metadata: { amount, status: "REQUESTED" },
+    metadata: { amount: Number(payout.amount), status: "REQUESTED" },
   });
 
   return payout;

@@ -153,6 +153,8 @@ export async function getDepositSummary() {
 export async function toggleDepositRefundable(agencyId: string, refundable: boolean) {
   const session = await requireOperator();
 
+  const before = await prisma.agency.findUniqueOrThrow({ where: { id: agencyId } });
+
   const updated = await prisma.agency.update({
     where: { id: agencyId },
     data: { depositRefundable: refundable },
@@ -163,7 +165,7 @@ export async function toggleDepositRefundable(agencyId: string, refundable: bool
     action: "UPDATE",
     entityType: "Agency",
     entityId: agencyId,
-    changes: { depositRefundable: { old: !refundable, new: refundable } },
+    changes: { depositRefundable: { old: before.depositRefundable, new: refundable } },
     metadata: { section: "deposit" },
   });
 

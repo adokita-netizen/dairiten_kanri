@@ -6,6 +6,7 @@ import { logAudit } from "./audit.service";
 import { findApplicableRule } from "./commission.service";
 import { toDecimal, calculateCommission } from "@/lib/utils/currency";
 import { addDays } from "@/lib/utils/date";
+import Decimal from "decimal.js";
 
 export async function calculateRevenueShares(options: {
   agencyId?: string;
@@ -45,7 +46,7 @@ export async function calculateRevenueShares(options: {
 
   for (const [agencyId, agencySales] of agencyGroups) {
     let processed = 0;
-    let totalAmount = 0;
+    let totalAmount = new Decimal(0);
     const errors: string[] = [];
 
     const eventsToCreate: {
@@ -93,31 +94,42 @@ export async function calculateRevenueShares(options: {
         periodMonth: options.periodMonth,
       });
 
-      totalAmount += Number(agencyAmount);
+      totalAmount = totalAmount.plus(agencyAmount);
       processed++;
     }
 
     if (eventsToCreate.length > 0) {
-      await prisma.$transaction(async (tx) => {
-        for (const event of eventsToCreate) {
-          await tx.commissionEvent.create({ data: event });
-        }
+      try {
+        await prisma.$transaction(async (tx) => {
+          for (const event of eventsToCreate) {
+            await tx.commissionEvent.create({ data: event });
+          }
 
-        await tx.balance.upsert({
-          where: { agencyId },
-          create: {
-            agencyId,
-            holdBalance: totalAmount,
-          },
-          update: {
-            holdBalance: { increment: totalAmount },
-            lastCalculatedAt: new Date(),
-          },
+          await tx.balance.upsert({
+            where: { agencyId },
+            create: {
+              agencyId,
+              holdBalance: Number(totalAmount),
+            },
+            update: {
+              holdBalance: { increment: Number(totalAmount) },
+              lastCalculatedAt: new Date(),
+            },
+          });
         });
-      });
+      } catch (err: unknown) {
+        const code = (err as { code?: string }).code;
+        if (code === "P2002") {
+          errors.push("一部の売上は既に計算済みのためスキップされました");
+          processed = 0;
+          totalAmount = new Decimal(0);
+        } else {
+          throw err;
+        }
+      }
     }
 
-    results.push({ agencyId, processed, totalAmount, errors });
+    results.push({ agencyId, processed, totalAmount: Number(totalAmount), errors });
   }
 
   await logAudit({
@@ -151,10 +163,10 @@ export async function confirmHeldCommissions() {
     },
   });
 
-  const agencyAmounts = new Map<string, number>();
+  const agencyAmounts = new Map<string, Decimal>();
   for (const event of eventsToConfirm) {
-    const current = agencyAmounts.get(event.agencyId) || 0;
-    agencyAmounts.set(event.agencyId, current + Number(event.agencyAmount));
+    const current = agencyAmounts.get(event.agencyId) || new Decimal(0);
+    agencyAmounts.set(event.agencyId, current.plus(toDecimal(event.agencyAmount)));
   }
 
   await prisma.$transaction(async (tx) => {
@@ -173,9 +185,9 @@ export async function confirmHeldCommissions() {
       await tx.balance.update({
         where: { agencyId },
         data: {
-          holdBalance: { decrement: amount },
-          confirmedBalance: { increment: amount },
-          totalEarned: { increment: amount },
+          holdBalance: { decrement: Number(amount) },
+          confirmedBalance: { increment: Number(amount) },
+          totalEarned: { increment: Number(amount) },
         },
       });
     }

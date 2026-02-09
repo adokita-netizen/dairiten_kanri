@@ -19,6 +19,7 @@ export default function CalculationsPage() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [loading, setLoading] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState("");
   const [results, setResults] = useState<
     { agencyId: string; processed: number; totalAmount: number; errors: string[] }[] | null
   >(null);
@@ -27,22 +28,24 @@ export default function CalculationsPage() {
   async function handleCalculate() {
     setLoading(true);
     setResults(null);
+    setError("");
     try {
       const res = await calculateRevenueShares({ periodYear: year, periodMonth: month });
       setResults(res);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "エラー");
+      setError(err instanceof Error ? err.message : "エラーが発生しました");
     }
     setLoading(false);
   }
 
   async function handleConfirm() {
     setConfirming(true);
+    setError("");
     try {
       const res = await confirmHeldCommissions();
       setConfirmResult(res);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "エラー");
+      setError(err instanceof Error ? err.message : "エラーが発生しました");
     }
     setConfirming(false);
   }
@@ -53,6 +56,10 @@ export default function CalculationsPage() {
         <h1 className="text-2xl font-bold">報酬計算</h1>
         <p className="mt-1 text-sm text-muted-foreground">売上データに基づく報酬計算と確定処理</p>
       </div>
+
+      {error && (
+        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -120,8 +127,8 @@ export default function CalculationsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {results.map((r, i) => (
-                    <TableRow key={i}>
+                  {results.map((r) => (
+                    <TableRow key={r.agencyId}>
                       <TableCell className="font-mono text-sm">{r.agencyId}</TableCell>
                       <TableCell>{r.processed}件</TableCell>
                       <TableCell className="font-bold">{formatJPY(r.totalAmount)}</TableCell>

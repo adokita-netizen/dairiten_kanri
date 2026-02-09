@@ -106,8 +106,8 @@ export default function ImportSalesPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {result.errors.map((err, i) => (
-                    <TableRow key={i}>
+                  {result.errors.map((err) => (
+                    <TableRow key={`${err.row}-${err.message}`}>
                       <TableCell>{err.row}</TableCell>
                       <TableCell className="text-destructive">{err.message}</TableCell>
                     </TableRow>
