@@ -17,7 +17,11 @@ export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("x-webhook-signature");
 
-  if (process.env.WEBHOOK_SECRET && !verifySignature(body, signature)) {
+  if (!process.env.WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+  }
+
+  if (!verifySignature(body, signature)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 

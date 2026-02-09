@@ -19,9 +19,13 @@ export default function EditAgencyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [agency, setAgency] = useState<Awaited<ReturnType<typeof getAgency>> | null>(null);
+  const [bankAccountType, setBankAccountType] = useState("ordinary");
 
   useEffect(() => {
-    getAgency(agencyId).then(setAgency).catch(() => router.push("/operator/agencies"));
+    getAgency(agencyId).then((a) => {
+      setAgency(a);
+      setBankAccountType(a.bankAccountType || "ordinary");
+    }).catch(() => router.push("/operator/agencies"));
   }, [agencyId, router]);
 
   if (!agency) return <div className="py-8 text-center text-muted-foreground">読み込み中...</div>;
@@ -69,7 +73,7 @@ export default function EditAgencyPage() {
       await updateBankInfo(agencyId, {
         bankName: formData.get("bankName") as string,
         bankBranchName: (formData.get("bankBranchName") as string) || undefined,
-        bankAccountType: formData.get("bankAccountType") as "ordinary" | "current",
+        bankAccountType: bankAccountType as "ordinary" | "current",
         bankAccountNumber: formData.get("bankAccountNumber") as string,
         bankAccountHolder: formData.get("bankAccountHolder") as string,
       });
@@ -165,7 +169,7 @@ export default function EditAgencyPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="bankAccountType">口座種別</Label>
-              <Select name="bankAccountType" defaultValue={agency.bankAccountType || "ordinary"}>
+              <Select value={bankAccountType} onValueChange={setBankAccountType}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

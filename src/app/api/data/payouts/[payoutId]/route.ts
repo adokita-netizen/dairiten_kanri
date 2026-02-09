@@ -22,5 +22,10 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json(payout);
+  return NextResponse.json({
+    ...payout,
+    amount: Number(payout.amount),
+    transferFee: Number(payout.transferFee),
+    netAmount: Number(payout.netAmount),
+  });
 }

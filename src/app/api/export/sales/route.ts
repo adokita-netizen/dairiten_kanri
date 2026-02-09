@@ -11,12 +11,16 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const agencyId = searchParams.get("agencyId") || undefined;
 
-  const csv = await exportSalesCSV({ agencyId });
+  try {
+    const csv = await exportSalesCSV({ agencyId });
 
-  return new NextResponse(csv, {
-    headers: {
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="sales-export-${new Date().toISOString().split("T")[0]}.csv"`,
-    },
-  });
+    return new NextResponse(csv, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename="sales-export-${new Date().toISOString().split("T")[0]}.csv"`,
+      },
+    });
+  } catch {
+    return NextResponse.json({ error: "CSVエクスポートに失敗しました" }, { status: 500 });
+  }
 }

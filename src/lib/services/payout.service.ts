@@ -174,8 +174,8 @@ export async function markPayoutAsPaid(payoutId: string) {
     throw new Error("この申請は支払い処理できる状態ではありません。承認済みの申請のみ処理できます。");
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.payoutRequest.update({
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.payoutRequest.update({
       where: { id: payoutId },
       data: {
         status: "PAID",
@@ -190,6 +190,8 @@ export async function markPayoutAsPaid(payoutId: string) {
         totalPaidOut: { increment: payout.netAmount },
       },
     });
+
+    return result;
   });
 
   await logAudit({
@@ -200,6 +202,8 @@ export async function markPayoutAsPaid(payoutId: string) {
     changes: { status: { old: "APPROVED", new: "PAID" } },
     metadata: { amount: Number(payout.amount) },
   });
+
+  return updated;
 }
 
 export async function cancelPayout(payoutId: string) {
