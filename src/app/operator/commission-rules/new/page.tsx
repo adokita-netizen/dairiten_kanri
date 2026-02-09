@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertCircle } from "lucide-react";
 
 export default function NewCommissionRulePage() {
   const router = useRouter();
@@ -19,10 +20,17 @@ export default function NewCommissionRulePage() {
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedPlan, setSelectedPlan] = useState("");
   const [commissionType, setCommissionType] = useState("PERCENTAGE");
+  const [fetchError, setFetchError] = useState("");
 
   useEffect(() => {
-    fetch("/api/data/agencies").then((r) => r.json()).then(setAgencies).catch(() => {});
-    fetch("/api/data/plans").then((r) => r.json()).then(setPlans).catch(() => {});
+    fetch("/api/data/agencies")
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(setAgencies)
+      .catch(() => setFetchError("代理店一覧の取得に失敗しました。ページを再読み込みしてください。"));
+    fetch("/api/data/plans")
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(setPlans)
+      .catch(() => setFetchError("プラン一覧の取得に失敗しました。ページを再読み込みしてください。"));
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -60,8 +68,11 @@ export default function NewCommissionRulePage() {
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
+            {(error || fetchError) && (
+              <div className="flex items-center gap-2 rounded-lg bg-destructive/5 border border-destructive/20 p-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error || fetchError}
+              </div>
             )}
             <div className="space-y-2">
               <Label>代理店 *</Label>

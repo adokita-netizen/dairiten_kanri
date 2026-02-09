@@ -19,8 +19,18 @@ export default function ImportSalesPage() {
     errors: { row: number; message: string }[];
   } | null>(null);
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
   async function handleImport() {
     if (!file) return;
+    if (file.size > MAX_FILE_SIZE) {
+      setResult({
+        total: 0,
+        success: 0,
+        errors: [{ row: 0, message: "ファイルサイズが5MBを超えています。ファイルを分割してください。" }],
+      });
+      return;
+    }
     setLoading(true);
 
     const text = await file.text();
@@ -57,7 +67,9 @@ export default function ImportSalesPage() {
               <FileSpreadsheet className="h-8 w-8 text-muted-foreground" />
               <div>
                 <p className="font-medium">{file ? file.name : "ファイルを選択"}</p>
-                <p className="text-sm text-muted-foreground">CSV形式</p>
+                <p className="text-sm text-muted-foreground">
+                  {file ? `${(file.size / 1024).toFixed(1)} KB` : "CSV形式（最大5MB）"}
+                </p>
               </div>
               <input
                 type="file"

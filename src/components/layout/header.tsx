@@ -21,6 +21,7 @@ export function Header({
         {/* Hamburger for mobile */}
         <button
           onClick={onMenuClick}
+          aria-label="メニューを開く"
           className="flex lg:hidden h-9 w-9 items-center justify-center rounded-lg hover:bg-accent transition-colors"
         >
           <Menu className="h-5 w-5" />
@@ -46,6 +47,7 @@ export function Header({
           variant="ghost"
           size="sm"
           onClick={() => signOut({ callbackUrl: "/login" })}
+          aria-label="ログアウト"
           className="text-muted-foreground hover:text-foreground gap-1.5 text-xs"
         >
           <LogOut className="h-3.5 w-3.5" />

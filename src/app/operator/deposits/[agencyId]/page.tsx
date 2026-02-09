@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { formatJPY } from "@/lib/utils/currency";
 import { AGENCY_STATUS_LABELS } from "@/lib/utils/constants";
 import { ArrowLeft, Banknote, CheckCircle, RotateCcw, ShieldCheck, ShieldOff, AlertCircle } from "lucide-react";
@@ -25,13 +29,21 @@ export default function DepositDetailPage() {
   const [error, setError] = useState("");
   const [editAmount, setEditAmount] = useState(false);
   const [newAmount, setNewAmount] = useState("");
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     getAgency(agencyId).then((a) => {
       setAgency(a);
       setNewAmount(String(Number(a.depositAmount)));
-    }).catch(() => router.push("/operator/deposits"));
-  }, [agencyId, router]);
+    }).catch(() => setFetchError(true));
+  }, [agencyId]);
+
+  if (fetchError) return (
+    <div className="py-8 text-center space-y-4">
+      <p className="text-destructive">代理店情報の取得に失敗しました。</p>
+      <Button variant="outline" onClick={() => router.push("/operator/deposits")}>一覧に戻る</Button>
+    </div>
+  );
 
   if (!agency) return <div className="py-8 text-center text-muted-foreground">読み込み中...</div>;
 
@@ -55,7 +67,6 @@ export default function DepositDetailPage() {
   }
 
   async function handleRefund() {
-    if (!agency || !confirm(`${agency.name} のデポジット ${formatJPY(depositAmount)} を返金しますか？`)) return;
     setLoading(true);
     setError("");
     setMessage("");
@@ -150,7 +161,6 @@ export default function DepositDetailPage() {
         </div>
       )}
 
-      {/* Deposit Status */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -181,19 +191,13 @@ export default function DepositDetailPage() {
 
           <Separator />
 
-          {/* Amount Edit */}
           {!agency.depositRefunded && (
             <div className="space-y-3">
               <Label className="text-sm font-medium">デポジット金額の変更</Label>
               {editAmount ? (
                 <div className="flex gap-2 items-end">
                   <div className="flex-1">
-                    <Input
-                      type="number"
-                      value={newAmount}
-                      onChange={(e) => setNewAmount(e.target.value)}
-                      placeholder="金額（税込）"
-                    />
+                    <Input type="number" min="0" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} placeholder="金額（税込）" />
                   </div>
                   <Button size="sm" onClick={handleUpdateAmount} disabled={loading}>保存</Button>
                   <Button size="sm" variant="outline" onClick={() => setEditAmount(false)}>キャンセル</Button>
@@ -206,13 +210,9 @@ export default function DepositDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Actions */}
       <Card>
-        <CardHeader>
-          <CardTitle>操作</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle>操作</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          {/* Mark as paid */}
           {!agency.depositPaid && !agency.depositRefunded && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-lg border">
               <div className="flex items-center gap-3">
@@ -224,44 +224,45 @@ export default function DepositDetailPage() {
                   <p className="text-sm text-muted-foreground">デポジット {formatJPY(depositAmount)} の入金を確認</p>
                 </div>
               </div>
-              <Button onClick={handleMarkPaid} disabled={loading}>
-                入金済みにする
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button disabled={loading}>入金済みにする</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>入金確認</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {agency.name} のデポジット {formatJPY(depositAmount)} を入金済みにしますか？
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleMarkPaid}>入金済みにする</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
 
-          {/* Toggle refundable */}
           {agency.depositPaid && !agency.depositRefunded && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-lg border">
               <div className="flex items-center gap-3">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${agency.depositRefundable ? "bg-amber-50" : "bg-emerald-50"}`}>
-                  {agency.depositRefundable
-                    ? <ShieldOff className="h-5 w-5 text-amber-600" />
-                    : <ShieldCheck className="h-5 w-5 text-emerald-600" />
-                  }
+                  {agency.depositRefundable ? <ShieldOff className="h-5 w-5 text-amber-600" /> : <ShieldCheck className="h-5 w-5 text-emerald-600" />}
                 </div>
                 <div>
-                  <p className="font-medium">
-                    {agency.depositRefundable ? "返金不可に変更" : "返金可能に設定"}
-                  </p>
+                  <p className="font-medium">{agency.depositRefundable ? "返金不可に変更" : "返金可能に設定"}</p>
                   <p className="text-sm text-muted-foreground">
-                    {agency.depositRefundable
-                      ? "代理店側で返金可能の表示を非表示にします"
-                      : "代理店側にデポジット返金可能と表示します"}
+                    {agency.depositRefundable ? "代理店側で返金可能の表示を非表示にします" : "代理店側にデポジット返金可能と表示します"}
                   </p>
                 </div>
               </div>
-              <Button
-                variant={agency.depositRefundable ? "outline" : "default"}
-                onClick={handleToggleRefundable}
-                disabled={loading}
-              >
+              <Button variant={agency.depositRefundable ? "outline" : "default"} onClick={handleToggleRefundable} disabled={loading}>
                 {agency.depositRefundable ? "返金不可にする" : "返金可能にする"}
               </Button>
             </div>
           )}
 
-          {/* Refund */}
           {agency.depositPaid && !agency.depositRefunded && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-lg border border-destructive/20">
               <div className="flex items-center gap-3">
@@ -273,13 +274,26 @@ export default function DepositDetailPage() {
                   <p className="text-sm text-muted-foreground">デポジット {formatJPY(depositAmount)} を返金処理</p>
                 </div>
               </div>
-              <Button variant="destructive" onClick={handleRefund} disabled={loading}>
-                返金する
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" disabled={loading}>返金する</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>デポジット返金の確認</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {agency.name} のデポジット {formatJPY(depositAmount)} を返金済みにします。この操作は取り消せません。本当に実行しますか？
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleRefund} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">返金する</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
 
-          {/* Already refunded */}
           {agency.depositRefunded && (
             <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
               <CheckCircle className="h-5 w-5 text-muted-foreground" />

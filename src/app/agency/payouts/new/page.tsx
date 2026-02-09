@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { formatJPY } from "@/lib/utils/currency";
 import type { BalanceSummary } from "@/lib/types";
 import { useSession } from "next-auth/react";
+import { AlertCircle } from "lucide-react";
 
 export default function NewPayoutPage() {
   const router = useRouter();
@@ -16,10 +17,13 @@ export default function NewPayoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [balance, setBalance] = useState<BalanceSummary | null>(null);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     if (session?.user?.agencyId) {
-      getBalanceSummary(session.user.agencyId).then(setBalance).catch(() => {});
+      getBalanceSummary(session.user.agencyId)
+        .then(setBalance)
+        .catch(() => setFetchError(true));
     }
   }, [session]);
 
@@ -37,6 +41,16 @@ export default function NewPayoutPage() {
       setLoading(false);
     }
   }
+
+  if (fetchError) return (
+    <div className="py-8 text-center space-y-4">
+      <div className="flex items-center justify-center gap-2 text-destructive">
+        <AlertCircle className="h-5 w-5" />
+        <p>残高情報の取得に失敗しました。</p>
+      </div>
+      <Button variant="outline" onClick={() => router.push("/agency/payouts")}>一覧に戻る</Button>
+    </div>
+  );
 
   if (!balance) return <div className="py-8 text-center text-muted-foreground">読み込み中...</div>;
 

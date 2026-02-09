@@ -26,6 +26,10 @@ export default function CalculationsPage() {
   const [confirmResult, setConfirmResult] = useState<{ confirmed: number } | null>(null);
 
   async function handleCalculate() {
+    if (year < 2000 || year > 2099 || month < 1 || month > 12) {
+      setError("有効な年月を入力してください");
+      return;
+    }
     setLoading(true);
     setResults(null);
     setError("");
@@ -73,7 +77,7 @@ export default function CalculationsPage() {
             <div className="flex gap-4">
               <div className="space-y-2">
                 <Label>年</Label>
-                <Input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-28" />
+                <Input type="number" min={2000} max={2099} value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-28" />
               </div>
               <div className="space-y-2">
                 <Label>月</Label>
