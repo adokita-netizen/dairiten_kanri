@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { formatJPY } from "@/lib/utils/currency";
 import { formatDate } from "@/lib/utils/date";
 import { SALES_STATUS_LABELS, COMMISSION_EVENT_STATUS_LABELS } from "@/lib/utils/constants";
+import { Receipt, TrendingUp, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default async function AgencySalesPage({
@@ -23,7 +24,10 @@ export default async function AgencySalesPage({
   const page = Number(params.page) || 1;
   const pageSize = 20;
 
-  const [sales, total] = await Promise.all([
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [sales, total, monthlySummary, totalCommission] = await Promise.all([
     prisma.salesRecord.findMany({
       where: { agencyId },
       include: {
@@ -33,7 +37,6 @@ export default async function AgencySalesPage({
             status: true,
             commissionRate: true,
             agencyAmount: true,
-            operatorAmount: true,
           },
         },
       },
@@ -42,7 +45,40 @@ export default async function AgencySalesPage({
       take: pageSize,
     }),
     prisma.salesRecord.count({ where: { agencyId } }),
+    prisma.salesRecord.aggregate({
+      where: { agencyId, paymentStatus: "SUCCESS", transactionDate: { gte: monthStart } },
+      _sum: { saleAmountExTax: true },
+      _count: true,
+    }),
+    prisma.commissionEvent.aggregate({
+      where: { agencyId, status: { in: ["HOLD", "CONFIRMED", "PAID"] } },
+      _sum: { agencyAmount: true },
+      _count: true,
+    }),
   ]);
+
+  const stats = [
+    {
+      label: "今月の売上（税抜）",
+      value: formatJPY(Number(monthlySummary._sum.saleAmountExTax || 0)),
+      sub: `${monthlySummary._count}件`,
+      icon: Receipt,
+      color: "text-blue-600 bg-blue-50",
+    },
+    {
+      label: "累計報酬額",
+      value: formatJPY(Number(totalCommission._sum.agencyAmount || 0)),
+      sub: `${totalCommission._count}件`,
+      icon: TrendingUp,
+      color: "text-emerald-600 bg-emerald-50",
+    },
+    {
+      label: "全売上件数",
+      value: `${total}件`,
+      icon: Clock,
+      color: "text-violet-600 bg-violet-50",
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -54,6 +90,26 @@ export default async function AgencySalesPage({
         <Button variant="outline" size="sm" asChild>
           <a href={`/api/export/sales?format=csv`} download>CSV出力</a>
         </Button>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
+        {stats.map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
+                  <p className="text-xl font-bold tracking-tight">{stat.value}</p>
+                  {stat.sub && <p className="text-xs text-muted-foreground">{stat.sub}</p>}
+                </div>
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${stat.color}`}>
+                  <stat.icon className="h-5 w-5" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <Card>
@@ -71,7 +127,6 @@ export default async function AgencySalesPage({
                   <TableHead>決済</TableHead>
                   <TableHead>還元率</TableHead>
                   <TableHead>報酬額</TableHead>
-                  <TableHead>運営者取り分</TableHead>
                   <TableHead>報酬状態</TableHead>
                 </TableRow>
               </TableHeader>
@@ -92,15 +147,12 @@ export default async function AgencySalesPage({
                     <TableCell>
                       {sale.commissionEvent ? `${Number(sale.commissionEvent.commissionRate)}%` : "-"}
                     </TableCell>
-                    <TableCell className="font-medium text-green-700">
+                    <TableCell className="font-medium text-emerald-700">
                       {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.agencyAmount)) : "-"}
                     </TableCell>
                     <TableCell>
-                      {sale.commissionEvent ? formatJPY(Number(sale.commissionEvent.operatorAmount)) : "-"}
-                    </TableCell>
-                    <TableCell>
                       {sale.commissionEvent ? (
-                        <Badge variant={sale.commissionEvent.status === "CONFIRMED" ? "success" : "secondary"}>
+                        <Badge variant={sale.commissionEvent.status === "CONFIRMED" || sale.commissionEvent.status === "PAID" ? "success" : sale.commissionEvent.status === "INVALIDATED" ? "destructive" : "secondary"}>
                           {COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status]}
                         </Badge>
                       ) : (
@@ -111,7 +163,7 @@ export default async function AgencySalesPage({
                 ))}
                 {sales.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={10} className="text-center text-muted-foreground py-8">
                       売上データがありません。
                     </TableCell>
                   </TableRow>
@@ -125,9 +177,14 @@ export default async function AgencySalesPage({
               <div key={sale.id} className="rounded-xl border bg-card p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">{formatDate(sale.transactionDate)}</span>
-                  <Badge variant={sale.commissionEvent?.status === "CONFIRMED" ? "success" : "secondary"}>
-                    {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant={sale.paymentStatus === "SUCCESS" ? "success" : "destructive"} className="text-[10px]">
+                      {SALES_STATUS_LABELS[sale.paymentStatus]}
+                    </Badge>
+                    <Badge variant={sale.commissionEvent?.status === "CONFIRMED" || sale.commissionEvent?.status === "PAID" ? "success" : "secondary"} className="text-[10px]">
+                      {sale.commissionEvent ? COMMISSION_EVENT_STATUS_LABELS[sale.commissionEvent.status] : "未計算"}
+                    </Badge>
+                  </div>
                 </div>
                 <p className="font-medium">{sale.customerName || sale.customerRef || "-"}</p>
                 <p className="text-xs text-muted-foreground">{sale.plan?.name || "-"}</p>

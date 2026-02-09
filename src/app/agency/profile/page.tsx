@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/utils/date";
 import { AGENCY_STATUS_LABELS, BANK_ACCOUNT_TYPE_LABELS } from "@/lib/utils/constants";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertCircle } from "lucide-react";
 
 export default async function AgencyProfilePage() {
   const session = await auth();
@@ -22,6 +23,8 @@ export default async function AgencyProfilePage() {
       },
     },
   });
+
+  const hasBankInfo = agency.bankName && agency.bankAccountNumber && agency.bankAccountHolder;
 
   return (
     <div className="space-y-8">
@@ -61,6 +64,10 @@ export default async function AgencyProfilePage() {
             <p className="font-medium">{formatJPY(Number(agency.payoutThreshold))}</p>
           </div>
           <div>
+            <p className="text-sm text-muted-foreground">保留期間</p>
+            <p className="font-medium">{agency.holdPeriodDays}日</p>
+          </div>
+          <div>
             <p className="text-sm text-muted-foreground">登録日</p>
             <p className="font-medium">{formatDate(agency.createdAt)}</p>
           </div>
@@ -69,26 +76,34 @@ export default async function AgencyProfilePage() {
 
       <Card>
         <CardHeader><CardTitle>振込先情報</CardTitle></CardHeader>
-        <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          <div>
-            <p className="text-sm text-muted-foreground">銀行名</p>
-            <p className="font-medium">{agency.bankName || "未登録"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">支店名</p>
-            <p className="font-medium">{agency.bankBranchName || "未登録"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">口座種別</p>
-            <p className="font-medium">{agency.bankAccountType ? BANK_ACCOUNT_TYPE_LABELS[agency.bankAccountType] : "未登録"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">口座番号</p>
-            <p className="font-medium">{agency.bankAccountNumber || "未登録"}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">口座名義</p>
-            <p className="font-medium">{agency.bankAccountHolder || "未登録"}</p>
+        <CardContent>
+          {!hasBankInfo && (
+            <div className="flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-700 mb-4">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              振込先情報が未登録です。引き出し申請前に運営者にご連絡ください。
+            </div>
+          )}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+            <div>
+              <p className="text-sm text-muted-foreground">銀行名</p>
+              <p className="font-medium">{agency.bankName || "-"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">支店名</p>
+              <p className="font-medium">{agency.bankBranchName || "-"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">口座種別</p>
+              <p className="font-medium">{agency.bankAccountType ? BANK_ACCOUNT_TYPE_LABELS[agency.bankAccountType] : "-"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">口座番号</p>
+              <p className="font-medium">{agency.bankAccountNumber || "-"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">口座名義</p>
+              <p className="font-medium">{agency.bankAccountHolder || "-"}</p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -141,33 +156,63 @@ export default async function AgencyProfilePage() {
       <Card>
         <CardHeader><CardTitle>現在の還元率</CardTitle></CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>対象プラン</TableHead>
-                <TableHead>還元率</TableHead>
-                <TableHead>適用開始日</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {agency.commissionRules.map((rule) => (
-                <TableRow key={rule.id}>
-                  <TableCell>{rule.plan?.name || "全プラン"}</TableCell>
-                  <TableCell className="font-bold">
-                    {rule.commissionType === "PERCENTAGE" ? `${Number(rule.rate)}%` : formatJPY(Number(rule.rate))}
-                  </TableCell>
-                  <TableCell>{formatDate(rule.effectiveFrom)}</TableCell>
-                </TableRow>
-              ))}
-              {agency.commissionRules.length === 0 && (
+          {/* Desktop Table */}
+          <div className="hidden sm:block">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground">
-                    還元率が設定されていません。
-                  </TableCell>
+                  <TableHead>対象プラン</TableHead>
+                  <TableHead>種別</TableHead>
+                  <TableHead>還元率</TableHead>
+                  <TableHead>適用開始日</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {agency.commissionRules.map((rule) => (
+                  <TableRow key={rule.id}>
+                    <TableCell>{rule.plan?.name || "全プラン"}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {rule.commissionType === "PERCENTAGE" ? "パーセンテージ" : "固定金額"}
+                    </TableCell>
+                    <TableCell className="font-bold">
+                      {rule.commissionType === "PERCENTAGE" ? `${Number(rule.rate)}%` : formatJPY(Number(rule.rate))}
+                    </TableCell>
+                    <TableCell>{formatDate(rule.effectiveFrom)}</TableCell>
+                  </TableRow>
+                ))}
+                {agency.commissionRules.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
+                      還元率が設定されていません。運営者にお問い合わせください。
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="sm:hidden space-y-3">
+            {agency.commissionRules.map((rule) => (
+              <div key={rule.id} className="rounded-xl border p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{rule.plan?.name || "全プラン"}</span>
+                  <span className="text-lg font-bold text-emerald-600">
+                    {rule.commissionType === "PERCENTAGE" ? `${Number(rule.rate)}%` : formatJPY(Number(rule.rate))}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{rule.commissionType === "PERCENTAGE" ? "パーセンテージ" : "固定金額"}</span>
+                  <span>{formatDate(rule.effectiveFrom)}から</span>
+                </div>
+              </div>
+            ))}
+            {agency.commissionRules.length === 0 && (
+              <p className="text-center text-muted-foreground py-6">
+                還元率が設定されていません。運営者にお問い合わせください。
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

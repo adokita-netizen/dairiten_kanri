@@ -24,6 +24,7 @@ export default async function AgencyDashboard() {
       where: { id: agencyId },
       select: {
         payoutThreshold: true,
+        holdPeriodDays: true,
         name: true,
         depositAmount: true,
         depositPaid: true,
@@ -77,6 +78,7 @@ export default async function AgencyDashboard() {
     {
       label: "保留中の報酬",
       value: formatJPY(holdBalance),
+      sub: holdBalance > 0 ? `確定まで約${agency.holdPeriodDays}日` : undefined,
       icon: Clock,
       color: "text-amber-600 bg-amber-50",
     },
@@ -97,8 +99,10 @@ export default async function AgencyDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">ダッシュボード</h1>
-        <p className="text-muted-foreground text-sm mt-1">売上と報酬の概要を確認できます</p>
+        <h1 className="text-2xl font-bold">{agency.name}</h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          今月の売上: {formatJPY(Number(monthlySales._sum.saleAmountExTax || 0))}（{monthlySales._count}件）
+        </p>
       </div>
 
       {/* Stats Cards */}
@@ -140,14 +144,14 @@ export default async function AgencyDashboard() {
                   <>
                     <p className="font-semibold text-emerald-700">引き出し申請が可能です</p>
                     <p className="text-sm text-emerald-600/80">
-                      確定残高が閾値（{formatJPY(threshold)}）以上です
+                      確定残高が最低支払額（{formatJPY(threshold)}）以上です
                     </p>
                   </>
                 ) : (
                   <>
                     <p className="font-semibold">引き出し申請まであと {formatJPY(amountUntilThreshold)}</p>
                     <p className="text-sm text-muted-foreground">
-                      閾値: {formatJPY(threshold)} / 未達分は自動で翌月に繰越
+                      最低支払額: {formatJPY(threshold)} / 残高は翌月以降に繰り越されます
                     </p>
                   </>
                 )}

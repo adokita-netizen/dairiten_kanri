@@ -35,22 +35,29 @@ export async function exportSalesCSV(params: {
     orderBy: { transactionDate: "desc" },
   });
 
-  const csvData = records.map((r) => ({
-    売上日: r.transactionDate.toISOString().split("T")[0],
-    代理店コード: r.agency.code,
-    代理店名: r.agency.name,
-    プラン: r.plan?.name || "",
-    顧客名: r.customerName || "",
-    顧客Ref: r.customerRef || "",
-    売上金額_税抜: Number(r.saleAmountExTax),
-    税額: Number(r.taxAmount),
-    売上金額_税込: Number(r.saleAmountIncTax),
-    決済ステータス: r.paymentStatus,
-    還元率: r.commissionEvent ? `${Number(r.commissionEvent.commissionRate)}%` : "",
-    代理店報酬: r.commissionEvent ? Number(r.commissionEvent.agencyAmount) : "",
-    運営者取り分: r.commissionEvent ? Number(r.commissionEvent.operatorAmount) : "",
-    報酬ステータス: r.commissionEvent?.status || "",
-  }));
+  const isAgency = session.user.role === "AGENCY";
+
+  const csvData = records.map((r) => {
+    const row: Record<string, string | number> = {
+      売上日: r.transactionDate.toISOString().split("T")[0],
+      代理店コード: r.agency.code,
+      代理店名: r.agency.name,
+      プラン: r.plan?.name || "",
+      顧客名: r.customerName || "",
+      顧客Ref: r.customerRef || "",
+      売上金額_税抜: Number(r.saleAmountExTax),
+      税額: Number(r.taxAmount),
+      売上金額_税込: Number(r.saleAmountIncTax),
+      決済ステータス: r.paymentStatus,
+      還元率: r.commissionEvent ? `${Number(r.commissionEvent.commissionRate)}%` : "",
+      代理店報酬: r.commissionEvent ? Number(r.commissionEvent.agencyAmount) : "",
+      報酬ステータス: r.commissionEvent?.status || "",
+    };
+    if (!isAgency) {
+      row["運営者取り分"] = r.commissionEvent ? Number(r.commissionEvent.operatorAmount) : "";
+    }
+    return row;
+  });
 
   const csv = Papa.unparse(csvData);
 

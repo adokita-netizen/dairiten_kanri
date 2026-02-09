@@ -53,23 +53,9 @@ export default function LoginPage() {
             レベニューシェア<br />管理プラットフォーム
           </h1>
           <p className="text-lg text-white/70 leading-relaxed max-w-md">
-            SaaS代理店の売上管理・報酬計算・支払管理を<br />
+            代理店の売上管理・報酬計算・支払管理を<br />
             一元的に管理するシステムです。
           </p>
-          <div className="flex gap-8 pt-4">
-            <div>
-              <p className="text-3xl font-bold">100%</p>
-              <p className="text-sm text-white/60">自動計算</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold">24h</p>
-              <p className="text-sm text-white/60">リアルタイム</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold">安全</p>
-              <p className="text-sm text-white/60">監査対応</p>
-            </div>
-          </div>
         </div>
         <p className="text-sm text-white/40">Revenue Share Management System</p>
       </div>
