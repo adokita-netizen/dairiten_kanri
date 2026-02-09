@@ -193,6 +193,19 @@ export async function importSalesCSV(csvContent: string) {
 export async function invalidateSalesRecord(salesRecordId: string, reason: string) {
   const session = await requireOperator();
 
+  if (!reason || reason.trim().length === 0) {
+    throw new Error("無効化理由は必須です");
+  }
+
+  // 事前にレコードの状態を確認（二重実行防止）
+  const record = await prisma.salesRecord.findUniqueOrThrow({
+    where: { id: salesRecordId },
+  });
+
+  if (record.paymentStatus === "REFUNDED") {
+    throw new Error("この売上レコードは既に無効化されています");
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.salesRecord.update({
       where: { id: salesRecordId },
@@ -239,6 +252,7 @@ export async function invalidateSalesRecord(salesRecordId: string, reason: strin
     action: "STATUS_CHANGE",
     entityType: "SalesRecord",
     entityId: salesRecordId,
+    changes: { paymentStatus: { old: record.paymentStatus, new: "REFUNDED" } },
     metadata: { reason },
   });
 }
